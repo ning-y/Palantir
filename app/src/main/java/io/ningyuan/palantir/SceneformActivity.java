@@ -6,10 +6,13 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
@@ -76,6 +79,11 @@ public class SceneformActivity extends AppCompatActivity {
           transformableNode.getScaleController().setMaxScale(SCALE_HACK_MAX);
           transformableNode.getScaleController().setMinScale(SCALE_HACK_MIN);
         });
+
+    final FloatingActionButton uploadButton = findViewById(R.id.upload_button);
+    uploadButton.setOnClickListener((View v) ->
+        Toast.makeText(getApplicationContext(), "Upload button clicked.", Toast.LENGTH_SHORT).show()
+    );
   }
 
   /**
