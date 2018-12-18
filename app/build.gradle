@@ -37,14 +37,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     lintOptions {
         abortOnError false
     }
 }
 
 dependencies {
-
     // Provides ArFragment, and other Sceneform UX resources:
     implementation "com.google.ar.sceneform.ux:sceneform-ux:1.5.0"
 
@@ -55,6 +53,8 @@ dependencies {
     //implementation "com.google.ar.sceneform:core:1.5.0"
 
     implementation "com.android.support:appcompat-v7:27.1.1"
+
+    implementation "com.android.support:design:27.1.1"
 }
 
 apply plugin: 'com.google.ar.sceneform.plugin'
