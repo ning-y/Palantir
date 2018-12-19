@@ -3,6 +3,7 @@ package io.ningyuan.palantir;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ public class SceneformActivity extends AppCompatActivity {
   private static final double MIN_OPENGL_VERSION = 3.0;
   private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
   private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
+  private static final int IMPORT_GLTF_FILE_RESULT = 1;
 
   private ArFragment arFragment;
   private ModelRenderable modelRenderable;
@@ -43,7 +45,6 @@ public class SceneformActivity extends AppCompatActivity {
     }
 
     setContentView(R.layout.activity_ux);
-    arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
 
     // When you build a Renderable, Sceneform loads its resources in the background while returning
     // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
@@ -57,6 +58,7 @@ public class SceneformActivity extends AppCompatActivity {
               return null;
             });
 
+    arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
     arFragment.setOnTapArPlaneListener(
         (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
           if (modelRenderable == null) {
@@ -80,10 +82,18 @@ public class SceneformActivity extends AppCompatActivity {
           transformableNode.getScaleController().setMinScale(SCALE_HACK_MIN);
         });
 
-    final FloatingActionButton uploadButton = findViewById(R.id.upload_button);
-    uploadButton.setOnClickListener((View v) ->
-        Toast.makeText(getApplicationContext(), "Upload button clicked.", Toast.LENGTH_SHORT).show()
-    );
+    final FloatingActionButton importButton = findViewById(R.id.import_button);
+    importButton.setOnClickListener((View v) -> {
+        Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        importIntent.setType("*/*");  // otherwise, there will be no resolvable activity
+
+        // Only startActivity if there is a resolvable activity; if not checked, will crash
+        if (importIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(importIntent, IMPORT_GLTF_FILE_RESULT);
+        } else {
+            Toast.makeText(getApplicationContext(), "Something went wrong: no resolvable activity for importIntent.", Toast.LENGTH_LONG).show();
+        }
+    });
   }
 
   /**
