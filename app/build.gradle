@@ -44,8 +44,8 @@ android {
 
 dependencies {
     // Provides ArFragment, and other Sceneform UX resources:
-    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.5.0"
-
+    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.6.0"
+    implementation "com.google.ar.sceneform:assets:1.6.0"
     // Use the Sceneform Ux Package built from the source files included in the sceneformux folder.
     //api project(":sceneformux")
 
@@ -53,8 +53,9 @@ dependencies {
     //implementation "com.google.ar.sceneform:core:1.5.0"
 
     implementation "com.android.support:appcompat-v7:27.1.1"
-
     implementation "com.android.support:design:27.1.1"
+
+    implementation 'commons-io:commons-io:2.6'
 }
 
 apply plugin: 'com.google.ar.sceneform.plugin'
