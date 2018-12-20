@@ -60,8 +60,3 @@ dependencies {
 }
 
 apply plugin: 'com.google.ar.sceneform.plugin'
-
-sceneform.asset('src/main/models/cro.obj',
-        'default',
-        'src/main/models/cro.sfa',
-        'src/main/res/raw/cro')

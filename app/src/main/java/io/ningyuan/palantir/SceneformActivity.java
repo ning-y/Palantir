@@ -52,12 +52,15 @@ public class SceneformActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_ux);
 
-        setModelRenderable(R.raw.cro);
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
                     if (modelRenderable == null) {
-                        return;
+                        Toast.makeText(
+                                this,
+                                "You must first import a *.glb file!",
+                                Toast.LENGTH_SHORT
+                        ).show();
                     }
 
                     // Create the Anchor.
@@ -112,22 +115,6 @@ public class SceneformActivity extends AppCompatActivity {
             Uri uri = resultIntent.getData();
             setModelRenderable(uri);
         }
-    }
-
-    private void setModelRenderable(int resource) {
-        ModelRenderable.builder()
-                .setSource(this, resource)
-                .build()
-                .thenAccept(renderable -> modelRenderable = renderable)
-                .exceptionally(
-                        throwable -> {
-                            Toast.makeText(
-                                    this,
-                                    "Unable to load andy renderable",
-                                    Toast.LENGTH_LONG
-                            ).show();
-                            return null;
-                        });
     }
 
     /**
