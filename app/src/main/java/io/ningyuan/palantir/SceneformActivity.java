@@ -4,14 +4,15 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
@@ -36,8 +37,11 @@ public class SceneformActivity extends AppCompatActivity {
     private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
     private static final int IMPORT_GLB_FILE_RESULT = 1;
 
+    private TextView modelNameTextView;
+
     private ArFragment arFragment;
     private ModelRenderable modelRenderable;
+    private String modelName;
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -51,6 +55,24 @@ public class SceneformActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_ux);
+
+        modelNameTextView = findViewById(R.id.model_name);
+        updateModelNameTextView();
+
+        final FloatingActionButton importButton = findViewById(R.id.import_button);
+        importButton.setOnClickListener(view -> {
+            Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            importIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            // MIME type for glTF not yet supported; https://issuetracker.google.com/issues/121223582
+            importIntent.setType("*/*");
+
+            // Only startActivity if there is a resolvable activity; if not checked, will crash
+            if (importIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
+            } else {
+                showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
+            }
+        });
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         arFragment.setOnTapArPlaneListener(
@@ -77,21 +99,6 @@ public class SceneformActivity extends AppCompatActivity {
                     transformableNode.getScaleController().setMaxScale(SCALE_HACK_MAX);
                     transformableNode.getScaleController().setMinScale(SCALE_HACK_MIN);
                 });
-
-        final FloatingActionButton importButton = findViewById(R.id.import_button);
-        importButton.setOnClickListener(view -> {
-            Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            importIntent.addCategory(Intent.CATEGORY_OPENABLE);
-            // MIME type for glTF not yet supported; https://issuetracker.google.com/issues/121223582
-            importIntent.setType("*/*");
-
-            // Only startActivity if there is a resolvable activity; if not checked, will crash
-            if (importIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
-            } else {
-                showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
-            }
-        });
     }
 
     /**
@@ -140,7 +147,11 @@ public class SceneformActivity extends AppCompatActivity {
                     )
                     .setRegistryId(cacheFileName)
                     .build()
-                    .thenAccept(renderable -> modelRenderable = renderable)
+                    .thenAccept(renderable -> {
+                        modelRenderable = renderable;
+                        modelName = getContentUriName(uri);
+                        updateModelNameTextView();
+                    })
                     .exceptionally(
                             throwable -> {
                                 Log.e(TAG, null, throwable);
@@ -154,35 +165,31 @@ public class SceneformActivity extends AppCompatActivity {
     }
 
     /**
-     * Returns false and displays an error message if Sceneform can not run, true if Sceneform can run
-     * on this device.
-     *
-     * <p>Sceneform requires Android N on the device as well as OpenGL 3.0 capabilities.
-     *
-     * <p>Finishes the activity if Sceneform can not run
+     * Update modelNameTextView to show the current value of modelName.
      */
-    public boolean checkIsSupportedDeviceOrFinish(final Activity activity) {
-        if (Build.VERSION.SDK_INT < VERSION_CODES.N) {
-            Log.e(TAG, getString(R.string.error_insufficient_sdk_version));
-            showToast(R.string.error_insufficient_sdk_version, Toast.LENGTH_LONG);
-            activity.finish();
-            return false;
-        }
-        String openGlVersionString =
-                ((ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE))
-                        .getDeviceConfigurationInfo()
-                        .getGlEsVersion();
-        if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-            Log.e(TAG, getString(R.string.error_insufficient_opengl_version));
-            showToast(R.string.error_insufficient_opengl_version, Toast.LENGTH_LONG);
-            activity.finish();
-            return false;
-        }
-        return true;
+    private void updateModelNameTextView() {
+        modelNameTextView.setText(modelName);
+    }
+
+    /**
+     * Get the filename (display name) of a given content URI.
+     *
+     * @param uri Content URI
+     * @return Filename (display name)
+     */
+    private String getContentUriName(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        assert cursor != null;
+        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        cursor.moveToFirst();
+        String displayName = cursor.getString(nameIndex);
+        cursor.close();
+        return displayName;
     }
 
     /**
      * Show a toast with the desired message and duration.
+     *
      * @param message  Message to show
      * @param duration Either Toast.LENGTH_SHORT or Toast.LENGTH_LONG
      */
@@ -197,5 +204,27 @@ public class SceneformActivity extends AppCompatActivity {
      */
     private void showToast(final int resID, final int duration) {
         showToast(getString(resID), duration);
+    }
+
+    /**
+     * Returns false and displays an error message if Sceneform can not run, true if Sceneform can run
+     * on this device.
+     *
+     * <p>Sceneform requires Android N on the device as well as OpenGL 3.0 capabilities.
+     *
+     * <p>Finishes the activity if Sceneform can not run
+     */
+    public boolean checkIsSupportedDeviceOrFinish(final Activity activity) {
+        String openGlVersionString =
+                ((ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE))
+                        .getDeviceConfigurationInfo()
+                        .getGlEsVersion();
+        if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
+            Log.e(TAG, getString(R.string.error_insufficient_opengl_version));
+            showToast(R.string.error_insufficient_opengl_version, Toast.LENGTH_LONG);
+            activity.finish();
+            return false;
+        }
+        return true;
     }
 }
