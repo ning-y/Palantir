@@ -56,7 +56,7 @@ public class SceneformActivity extends AppCompatActivity {
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
                     if (modelRenderable == null) {
-                        showToast("You must first import a *.glb file!", Toast.LENGTH_SHORT);
+                        showToast(R.string.error_no_model_renderable, Toast.LENGTH_SHORT);
                     }
 
                     // Create the Anchor.
@@ -89,7 +89,7 @@ public class SceneformActivity extends AppCompatActivity {
             if (importIntent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
             } else {
-                showToast("Something went wrong: no resolvable activity for importIntent.", Toast.LENGTH_LONG);
+                showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
             }
         });
     }
@@ -120,13 +120,13 @@ public class SceneformActivity extends AppCompatActivity {
      */
     private void setModelRenderable(Uri uri) {
         try {
-            Log.e("setModelRenderable", "Start writing file");
+            Log.i(TAG, getString(R.string.log_write_temp_file_start));
             String cacheFileName = String.valueOf(System.currentTimeMillis());
             File cacheFile = File.createTempFile(cacheFileName, ".glb", getCacheDir());
             FileOutputStream outputStream = new FileOutputStream(cacheFile);
             IOUtils.copy(getContentResolver().openInputStream(uri), outputStream);
             outputStream.close();
-            Log.e("setModelRenderable", "Done writing file " + cacheFile.getCanonicalPath());
+            Log.i(TAG, getString(R.string.log_write_temp_file_done) + cacheFile.getCanonicalPath());
 
             ModelRenderable.builder()
                     .setSource(this, RenderableSource.builder().setSource(
@@ -142,13 +142,13 @@ public class SceneformActivity extends AppCompatActivity {
                     .thenAccept(renderable -> modelRenderable = renderable)
                     .exceptionally(
                             throwable -> {
-                                Log.e("setModelRenderable", null, throwable);
-                                showToast("Unable to load renderable", Toast.LENGTH_LONG);
+                                Log.e(TAG, null, throwable);
+                                showToast(R.string.error_import_failed_bad_render, Toast.LENGTH_LONG);
                                 return null;
                             });
         } catch (IOException e) {
-            Log.e("setModelRenderable", "Failed with IOException: " + e.toString());
-            showToast("Unable to import file.", Toast.LENGTH_LONG);
+            Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
+            showToast(R.string.error_import_failed_io, Toast.LENGTH_LONG);
         }
     }
 
@@ -162,8 +162,8 @@ public class SceneformActivity extends AppCompatActivity {
      */
     public boolean checkIsSupportedDeviceOrFinish(final Activity activity) {
         if (Build.VERSION.SDK_INT < VERSION_CODES.N) {
-            Log.e(TAG, "Sceneform requires Android N or later");
-            showToast("Sceneform requires Android N or later", Toast.LENGTH_LONG);
+            Log.e(TAG, getString(R.string.error_insufficient_sdk_version));
+            showToast(R.string.error_insufficient_sdk_version, Toast.LENGTH_LONG);
             activity.finish();
             return false;
         }
@@ -172,8 +172,8 @@ public class SceneformActivity extends AppCompatActivity {
                         .getDeviceConfigurationInfo()
                         .getGlEsVersion();
         if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-            Log.e(TAG, "Sceneform requires OpenGL ES 3.0 later");
-            showToast("Sceneform requires OpenGL ES 3.0 or later", Toast.LENGTH_LONG);
+            Log.e(TAG, getString(R.string.error_insufficient_opengl_version));
+            showToast(R.string.error_insufficient_opengl_version, Toast.LENGTH_LONG);
             activity.finish();
             return false;
         }
@@ -187,5 +187,14 @@ public class SceneformActivity extends AppCompatActivity {
      */
     private void showToast(final String message, final int duration) {
         Toast.makeText(this, message, duration).show();
+    }
+
+    /**
+     * Show a toast with the desired message and duration.
+     * @param resID    Resource ID from string.xml for message
+     * @param duration Either Toast.LENGTH_SHORT or Toast.LENGTH_LONG
+     */
+    private void showToast(final int resID, final int duration) {
+        showToast(getString(resID), duration);
     }
 }
