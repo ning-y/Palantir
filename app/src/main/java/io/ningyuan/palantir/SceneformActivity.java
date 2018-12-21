@@ -56,11 +56,7 @@ public class SceneformActivity extends AppCompatActivity {
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
                     if (modelRenderable == null) {
-                        Toast.makeText(
-                                this,
-                                "You must first import a *.glb file!",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        showToast("You must first import a *.glb file!", Toast.LENGTH_SHORT);
                     }
 
                     // Create the Anchor.
@@ -93,11 +89,7 @@ public class SceneformActivity extends AppCompatActivity {
             if (importIntent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
             } else {
-                Toast.makeText(
-                        this,
-                        "Something went wrong: no resolvable activity for importIntent.",
-                        Toast.LENGTH_LONG
-                ).show();
+                showToast("Something went wrong: no resolvable activity for importIntent.", Toast.LENGTH_LONG);
             }
         });
     }
@@ -151,16 +143,12 @@ public class SceneformActivity extends AppCompatActivity {
                     .exceptionally(
                             throwable -> {
                                 Log.e("setModelRenderable", null, throwable);
-                                Toast.makeText(
-                                        this,
-                                        "Unable to load renderable",
-                                        Toast.LENGTH_LONG
-                                ).show();
+                                showToast("Unable to load renderable", Toast.LENGTH_LONG);
                                 return null;
                             });
         } catch (IOException e) {
             Log.e("setModelRenderable", "Failed with IOException: " + e.toString());
-            Toast.makeText(this, "Unable to import file.", Toast.LENGTH_LONG).show();
+            showToast("Unable to import file.", Toast.LENGTH_LONG);
         }
     }
 
@@ -172,10 +160,10 @@ public class SceneformActivity extends AppCompatActivity {
      *
      * <p>Finishes the activity if Sceneform can not run
      */
-    public static boolean checkIsSupportedDeviceOrFinish(final Activity activity) {
+    public boolean checkIsSupportedDeviceOrFinish(final Activity activity) {
         if (Build.VERSION.SDK_INT < VERSION_CODES.N) {
             Log.e(TAG, "Sceneform requires Android N or later");
-            Toast.makeText(activity, "Sceneform requires Android N or later", Toast.LENGTH_LONG).show();
+            showToast("Sceneform requires Android N or later", Toast.LENGTH_LONG);
             activity.finish();
             return false;
         }
@@ -185,11 +173,19 @@ public class SceneformActivity extends AppCompatActivity {
                         .getGlEsVersion();
         if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
             Log.e(TAG, "Sceneform requires OpenGL ES 3.0 later");
-            Toast.makeText(activity, "Sceneform requires OpenGL ES 3.0 or later", Toast.LENGTH_LONG)
-                    .show();
+            showToast("Sceneform requires OpenGL ES 3.0 or later", Toast.LENGTH_LONG);
             activity.finish();
             return false;
         }
         return true;
+    }
+
+    /**
+     * Show a toast with the desired message and duration.
+     * @param message  Message to show
+     * @param duration Either Toast.LENGTH_SHORT or Toast.LENGTH_LONG
+     */
+    private void showToast(final String message, final int duration) {
+        Toast.makeText(this, message, duration).show();
     }
 }
