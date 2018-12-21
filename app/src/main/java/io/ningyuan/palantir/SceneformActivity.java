@@ -104,30 +104,31 @@ public class SceneformActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         if (requestCode == IMPORT_GLB_FILE_RESULT && resultCode == RESULT_OK) {
-            Uri uri = resultIntent.getData();
-            setModelRenderable(uri);
+            Uri contentUri = resultIntent.getData();
+            setModelRenderable(contentUri);
         }
     }
 
     /**
+     * Set a binary glTF file (*.glb) as the modelRenderable.
+     *
      * @param uri content URI returned from ACTION_OPEN_DOCUMENT's resulting intent
-     *            <p>
-     *            So, the URI that is passed here is a content URI from the ACTION_OPEN_DOCUMENT intent.
-     *            However, RenderableSource.builder().setSource really only accepts URLs, not URIs (this
-     *            restriction is not documented). So, take the content URI, open an inputStream, save it
-     *            in this app's cache directory, then pass that new file in the cache to
-     *            ReadnerableSource.builder().setSource.
      */
     private void setModelRenderable(Uri uri) {
         try {
+            /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
+               See: https://github.com/google-ar/sceneform-android-sdk/issues/477
+               So, extract an InputStream from the content URI, save it as a temp file,
+               and pass the URL (using the file:// scheme) of that temp file instead. */
             Log.i(TAG, getString(R.string.log_write_temp_file_start));
             String cacheFileName = String.valueOf(System.currentTimeMillis());
             File cacheFile = File.createTempFile(cacheFileName, ".glb", getCacheDir());
             FileOutputStream outputStream = new FileOutputStream(cacheFile);
             IOUtils.copy(getContentResolver().openInputStream(uri), outputStream);
             outputStream.close();
-            Log.i(TAG, getString(R.string.log_write_temp_file_done) + cacheFile.getCanonicalPath());
+            Log.i(TAG, getString(R.string.log_write_temp_file_done) + cacheFile.toURI().toString());
 
+            // Weird URI conversions coming up because java.net.URI != android.net.URI
             ModelRenderable.builder()
                     .setSource(this, RenderableSource.builder().setSource(
                             this,
