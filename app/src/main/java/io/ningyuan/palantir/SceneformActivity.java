@@ -12,6 +12,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.assets.RenderableSource;
 import com.google.ar.sceneform.ux.ArFragment;
+import com.google.ar.sceneform.ux.BaseArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
 
 import org.apache.commons.io.IOUtils;
@@ -37,11 +39,10 @@ public class SceneformActivity extends AppCompatActivity {
     private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
     private static final int IMPORT_GLB_FILE_RESULT = 1;
 
-    private TextView modelNameTextView;
-
     private ArFragment arFragment;
     private ModelRenderable modelRenderable;
     private String modelName;
+    private TextView modelNameTextView;
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -60,45 +61,10 @@ public class SceneformActivity extends AppCompatActivity {
         updateModelNameTextView();
 
         final FloatingActionButton importButton = findViewById(R.id.import_button);
-        importButton.setOnClickListener(view -> {
-            Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            importIntent.addCategory(Intent.CATEGORY_OPENABLE);
-            // MIME type for glTF not yet supported; https://issuetracker.google.com/issues/121223582
-            importIntent.setType("*/*");
-
-            // Only startActivity if there is a resolvable activity; if not checked, will crash
-            if (importIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
-            } else {
-                showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
-            }
-        });
+        importButton.setOnClickListener(new ImportButtonOnClickListener());
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
-        arFragment.setOnTapArPlaneListener(
-                (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
-                    if (modelRenderable == null) {
-                        showToast(R.string.error_no_model_renderable, Toast.LENGTH_SHORT);
-                    }
-
-                    // Create the Anchor.
-                    Anchor anchor = hitResult.createAnchor();
-                    AnchorNode anchorNode = new AnchorNode(anchor);
-                    anchorNode.setParent(arFragment.getArSceneView().getScene());
-
-                    // Create the transformable node and add it to the anchor.
-                    TransformableNode transformableNode =
-                            new TransformableNode(arFragment.getTransformationSystem());
-                    transformableNode.setParent(anchorNode);
-                    transformableNode.setRenderable(modelRenderable);
-                    transformableNode.select();
-
-                    // The model normally spawns way too large. As a work-around (i.e. hack),
-                    // bound it's scale values to the ones where it looks reasonably large.
-                    // TODO: make it less hacky, of course
-                    transformableNode.getScaleController().setMaxScale(SCALE_HACK_MAX);
-                    transformableNode.getScaleController().setMinScale(SCALE_HACK_MIN);
-                });
+        arFragment.setOnTapArPlaneListener(new ArFragmentTapListener());
     }
 
     /**
@@ -114,6 +80,14 @@ public class SceneformActivity extends AppCompatActivity {
             Uri contentUri = resultIntent.getData();
             setModelRenderable(contentUri);
         }
+    }
+
+    /**
+     * Update modelNameTextView to show the current value of modelName.
+     */
+    private void updateModelNameTextView() {
+        // Using String.valueOf accounts for when modelName == null
+        modelNameTextView.setText(String.valueOf(modelName));
     }
 
     /**
@@ -165,13 +139,6 @@ public class SceneformActivity extends AppCompatActivity {
     }
 
     /**
-     * Update modelNameTextView to show the current value of modelName.
-     */
-    private void updateModelNameTextView() {
-        modelNameTextView.setText(modelName);
-    }
-
-    /**
      * Get the filename (display name) of a given content URI.
      *
      * @param uri Content URI
@@ -199,6 +166,7 @@ public class SceneformActivity extends AppCompatActivity {
 
     /**
      * Show a toast with the desired message and duration.
+     *
      * @param resID    Resource ID from string.xml for message
      * @param duration Either Toast.LENGTH_SHORT or Toast.LENGTH_LONG
      */
@@ -226,5 +194,55 @@ public class SceneformActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    /**
+     * OnClickListener for importButton.
+     */
+    private class ImportButtonOnClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            importIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            // MIME type for glTF not yet supported; https://issuetracker.google.com/issues/121223582
+            importIntent.setType("*/*");
+
+            // Only startActivity if there is a resolvable activity; if not checked, will crash
+            if (importIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
+            } else {
+                showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
+            }
+        }
+    }
+
+    /**
+     * OnTapArPlaneListener for arFragment.
+     */
+    private class ArFragmentTapListener implements BaseArFragment.OnTapArPlaneListener {
+        @Override
+        public void onTapPlane(HitResult hitResult, Plane plane, MotionEvent motionEvent) {
+            if (modelRenderable == null) {
+                showToast(R.string.error_no_model_renderable, Toast.LENGTH_SHORT);
+            }
+
+            // Create the Anchor.
+            Anchor anchor = hitResult.createAnchor();
+            AnchorNode anchorNode = new AnchorNode(anchor);
+            anchorNode.setParent(arFragment.getArSceneView().getScene());
+
+            // Create the transformable node and add it to the anchor.
+            TransformableNode transformableNode =
+                    new TransformableNode(arFragment.getTransformationSystem());
+            transformableNode.setParent(anchorNode);
+            transformableNode.setRenderable(modelRenderable);
+            transformableNode.select();
+
+            // The model normally spawns way too large. As a work-around (i.e. hack),
+            // bound it's scale values to the ones where it looks reasonably large.
+            // TODO: make it less hacky, of course
+            transformableNode.getScaleController().setMaxScale(SCALE_HACK_MAX);
+            transformableNode.getScaleController().setMinScale(SCALE_HACK_MIN);
+        }
     }
 }
