@@ -1,12 +1,29 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SceneformActivity">
+    android:layout_width="match_parent"
+    tools:context=".SceneformActivity"
+    xmlns:tools="http://schemas.android.com/tools">
 
-  <fragment android:name="com.google.ar.sceneform.ux.ArFragment"
+  <fragment
       android:id="@+id/ux_fragment"
+      android:layout_height="match_parent"
       android:layout_width="match_parent"
-      android:layout_height="match_parent" />
+      android:name="com.google.ar.sceneform.ux.ArFragment" />
+
+  <android.support.design.widget.FloatingActionButton
+      android:id="@+id/import_button"
+      android:layout_gravity="end|bottom"
+      android:layout_height="wrap_content"
+      android:layout_margin="16dp"
+      android:layout_width="wrap_content"
+      android:src="@drawable/ic_file_upload_black_24dp" />
+
+  <TextView
+      android:fontFamily="monospace"
+      android:id="@+id/model_name"
+      android:layout_gravity="top|center"
+      android:layout_height="wrap_content"
+      android:layout_margin="20dp"
+      android:layout_width="wrap_content" />
 
 </FrameLayout>

@@ -5,8 +5,10 @@
 
     <!-- Always needed for AR. -->
     <uses-permission android:name="android.permission.CAMERA" />
+
     <!-- This tag indicates that this application requires ARCore. This results in the application
-         only being visible in the Google Play Store on devices that support ARCore. -->
+         only being visible in the Google Play Store on devices that support ARCore. Since ARCore
+         requires Android 7.0 (8.0 on some devices), this also guarantees SDK level of >= 24-->
     <uses-feature android:name="android.hardware.camera.ar" android:required="true"/>
 
     <application
