@@ -1,6 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     tools:context=".SceneformActivity"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -10,14 +11,6 @@
       android:layout_width="match_parent"
       android:name="com.google.ar.sceneform.ux.ArFragment" />
 
-  <android.support.design.widget.FloatingActionButton
-      android:id="@+id/import_button"
-      android:layout_gravity="end|bottom"
-      android:layout_height="wrap_content"
-      android:layout_margin="16dp"
-      android:layout_width="wrap_content"
-      android:src="@drawable/ic_file_upload_black_24dp" />
-
   <TextView
       android:fontFamily="monospace"
       android:id="@+id/model_name"
@@ -25,5 +18,23 @@
       android:layout_height="wrap_content"
       android:layout_margin="20dp"
       android:layout_width="wrap_content" />
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/floating_actions_menu"
+        android:layout_gravity="end|bottom"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        fab:fab_labelsPosition="left"
+        fab:fab_labelStyle="@style/FloatingActionButtonLabels">
+
+      <com.getbase.floatingactionbutton.FloatingActionButton
+          android:id="@+id/import_glb_button"
+          android:layout_height="wrap_content"
+          android:layout_margin="16dp"
+          android:layout_width="wrap_content"
+          android:src="@drawable/ic_file_upload_black_24dp"
+          fab:fab_title="Import binary glTF (*.glb)" />
+
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </FrameLayout>

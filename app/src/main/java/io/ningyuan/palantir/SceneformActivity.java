@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -16,6 +15,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
@@ -40,6 +41,7 @@ public class SceneformActivity extends AppCompatActivity {
     private static final int IMPORT_GLB_FILE_RESULT = 1;
 
     private ArFragment arFragment;
+    private FloatingActionsMenu floatingActionsMenu;
     private ModelRenderable modelRenderable;
     private String modelName;
     private TextView modelNameTextView;
@@ -60,7 +62,8 @@ public class SceneformActivity extends AppCompatActivity {
         modelNameTextView = findViewById(R.id.model_name);
         updateModelNameTextView();
 
-        final FloatingActionButton importButton = findViewById(R.id.import_button);
+        floatingActionsMenu = findViewById(R.id.floating_actions_menu);
+        final FloatingActionButton importButton = findViewById(R.id.import_glb_button);
         importButton.setOnClickListener(new ImportButtonOnClickListener());
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
@@ -209,6 +212,7 @@ public class SceneformActivity extends AppCompatActivity {
 
             // Only startActivity if there is a resolvable activity; if not checked, will crash
             if (importIntent.resolveActivity(getPackageManager()) != null) {
+                floatingActionsMenu.collapse();
                 startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
             } else {
                 showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
