@@ -38,13 +38,16 @@ public class SceneformActivity extends AppCompatActivity {
     private static final double MIN_OPENGL_VERSION = 3.0;
     private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
     private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
-    private static final int IMPORT_GLB_FILE_RESULT = 1;
+    private static final int IMPORT_FILE_RESULT = 1;
+    private static final int IMPORT_MODE_GLB = 1;
+    private static final int IMPORT_MODE_OBJ = 2;
 
     private ArFragment arFragment;
     private FloatingActionsMenu floatingActionsMenu;
     private ModelRenderable modelRenderable;
     private String modelName;
     private TextView modelNameTextView;
+    private int importMode;
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -63,25 +66,33 @@ public class SceneformActivity extends AppCompatActivity {
         updateModelNameTextView();
 
         floatingActionsMenu = findViewById(R.id.floating_actions_menu);
-        final FloatingActionButton importButton = findViewById(R.id.import_glb_button);
-        importButton.setOnClickListener(new ImportButtonOnClickListener());
+        final FloatingActionButton importGlbButton = findViewById(R.id.import_glb_button);
+        importGlbButton.setOnClickListener(new ImportButtonOnClickListener(IMPORT_MODE_GLB));
+        final FloatingActionButton importObjButton = findViewById(R.id.import_obj_button);
+        importObjButton.setOnClickListener(new ImportButtonOnClickListener(IMPORT_MODE_OBJ));
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         arFragment.setOnTapArPlaneListener(new ArFragmentTapListener());
     }
 
     /**
-     * Receive a result from the importButton's importIntent i.e. Intent.ACTION_OPEN_DOCUMENT
+     * Receive a result from the importGlbButton's importIntent i.e. Intent.ACTION_OPEN_DOCUMENT
      *
-     * @param requestCode  the request code passed to startActivityForResult i.e. IMPORT_GLB_FILE_RESULT
+     * @param requestCode  the request code passed to startActivityForResult i.e. IMPORT_FILE_RESULT
      * @param resultCode   'exit code' by the external activity; RESULT_OK or RESULT_CANCELED
      * @param resultIntent an Intent carrying data
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-        if (requestCode == IMPORT_GLB_FILE_RESULT && resultCode == RESULT_OK) {
-            Uri contentUri = resultIntent.getData();
-            setModelRenderable(contentUri);
+        if (requestCode == IMPORT_FILE_RESULT && resultCode == RESULT_OK) {
+            switch (importMode) {
+                case IMPORT_MODE_GLB:
+                    Uri contentUri = resultIntent.getData();
+                    setModelRenderable(contentUri);
+                    break;
+                case IMPORT_MODE_OBJ:
+                    showToast("Wavefront OBJ imports not yet implemented.", Toast.LENGTH_LONG);
+            }
         }
     }
 
@@ -200,9 +211,15 @@ public class SceneformActivity extends AppCompatActivity {
     }
 
     /**
-     * OnClickListener for importButton.
+     * OnClickListener for importGlbButton and importObjButton.
      */
     private class ImportButtonOnClickListener implements View.OnClickListener {
+        private int modeToSet;
+
+        public ImportButtonOnClickListener(int modeToSet) {
+            this.modeToSet = modeToSet;
+        }
+
         @Override
         public void onClick(View view) {
             Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -213,7 +230,8 @@ public class SceneformActivity extends AppCompatActivity {
             // Only startActivity if there is a resolvable activity; if not checked, will crash
             if (importIntent.resolveActivity(getPackageManager()) != null) {
                 floatingActionsMenu.collapse();
-                startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
+                importMode = modeToSet;
+                startActivityForResult(importIntent, IMPORT_FILE_RESULT);
             } else {
                 showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
             }
