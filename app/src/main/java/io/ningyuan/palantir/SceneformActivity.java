@@ -11,18 +11,15 @@ import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.sceneform.AnchorNode;
-import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.assets.RenderableSource;
+import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.google.ar.sceneform.ux.BaseArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
@@ -33,17 +30,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import io.ningyuan.palantir.views.ImportButton;
+
+import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
+import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
+import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
+
 public class SceneformActivity extends AppCompatActivity {
     private static final String TAG = SceneformActivity.class.getSimpleName();
     private static final double MIN_OPENGL_VERSION = 3.0;
     private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
     private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
-    private static final int IMPORT_FILE_RESULT = 1;
-    private static final int IMPORT_MODE_GLB = 1;
-    private static final int IMPORT_MODE_OBJ = 2;
 
     private ArFragment arFragment;
-    private FloatingActionsMenu floatingActionsMenu;
     private ModelRenderable modelRenderable;
     private String modelName;
     private TextView modelNameTextView;
@@ -65,14 +64,17 @@ public class SceneformActivity extends AppCompatActivity {
         modelNameTextView = findViewById(R.id.model_name);
         updateModelNameTextView();
 
-        floatingActionsMenu = findViewById(R.id.floating_actions_menu);
-        final FloatingActionButton importGlbButton = findViewById(R.id.import_glb_button);
-        importGlbButton.setOnClickListener(new ImportButtonOnClickListener(IMPORT_MODE_GLB));
-        final FloatingActionButton importObjButton = findViewById(R.id.import_obj_button);
-        importObjButton.setOnClickListener(new ImportButtonOnClickListener(IMPORT_MODE_OBJ));
+        final ImportButton importGlbButton = findViewById(R.id.import_glb_button);
+        importGlbButton.setImportModeToTrigger(IMPORT_MODE_GLB);
+        final ImportButton importObjButton = findViewById(R.id.import_obj_button);
+        importObjButton.setImportModeToTrigger(IMPORT_MODE_OBJ);
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         arFragment.setOnTapArPlaneListener(new ArFragmentTapListener());
+    }
+
+    public void setImportMode(int importMode) {
+        this.importMode = importMode;
     }
 
     /**
@@ -208,34 +210,6 @@ public class SceneformActivity extends AppCompatActivity {
             return false;
         }
         return true;
-    }
-
-    /**
-     * OnClickListener for importGlbButton and importObjButton.
-     */
-    private class ImportButtonOnClickListener implements View.OnClickListener {
-        private int modeToSet;
-
-        public ImportButtonOnClickListener(int modeToSet) {
-            this.modeToSet = modeToSet;
-        }
-
-        @Override
-        public void onClick(View view) {
-            Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            importIntent.addCategory(Intent.CATEGORY_OPENABLE);
-            // MIME type for glTF not yet supported; https://issuetracker.google.com/issues/121223582
-            importIntent.setType("*/*");
-
-            // Only startActivity if there is a resolvable activity; if not checked, will crash
-            if (importIntent.resolveActivity(getPackageManager()) != null) {
-                floatingActionsMenu.collapse();
-                importMode = modeToSet;
-                startActivityForResult(importIntent, IMPORT_FILE_RESULT);
-            } else {
-                showToast(R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
-            }
-        }
     }
 
     /**
