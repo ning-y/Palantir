@@ -1,6 +1,5 @@
 package io.ningyuan.palantir;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -103,6 +102,7 @@ public class SceneformActivity extends AppCompatActivity {
      *
      * @param importMode the import mode to set. Either {@link ImportButton#IMPORT_MODE_GLB} or
      *                   {@link ImportButton#IMPORT_MODE_OBJ}.
+     * @see ImportButton#setImportModeToTrigger(int)
      */
     public void setImportMode(int importMode) {
         this.importMode = importMode;
