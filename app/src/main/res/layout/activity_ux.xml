@@ -9,7 +9,7 @@
       android:id="@+id/ux_fragment"
       android:layout_height="match_parent"
       android:layout_width="match_parent"
-      android:name="com.google.ar.sceneform.ux.ArFragment" />
+      android:name="io.ningyuan.palantir.fragments.SceneformFragment" />
 
   <TextView
       android:fontFamily="monospace"
