@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,14 +22,13 @@ import com.google.ar.sceneform.ux.ArFragment;
 import com.google.ar.sceneform.ux.BaseArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import io.ningyuan.palantir.views.ImportButton;
 
+import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
+import static io.ningyuan.palantir.utils.FileIo.getFilenameFromContentUri;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
@@ -89,8 +86,19 @@ public class SceneformActivity extends AppCompatActivity {
         if (requestCode == IMPORT_FILE_RESULT && resultCode == RESULT_OK) {
             switch (importMode) {
                 case IMPORT_MODE_GLB:
-                    Uri contentUri = resultIntent.getData();
-                    setModelRenderable(contentUri);
+                    /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
+                       See: https://github.com/google-ar/sceneform-android-sdk/issues/477
+                       So, extract an InputStream from the content URI, save it as a temp file,
+                       and pass the URL (using the file:// scheme) of that temp file instead. */
+                    try {
+                        Uri contentUri = resultIntent.getData();
+                        String filename = getFilenameFromContentUri(this, contentUri);
+                        File cacheFile = cacheFileFromContentUri(this, contentUri, ".glb");
+                        setModelRenderable(filename, cacheFile);
+                    } catch (IOException e) {
+                        Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
+                        showToast(R.string.error_import_failed_io, Toast.LENGTH_LONG);
+                    }
                     break;
                 case IMPORT_MODE_OBJ:
                     showToast("Wavefront OBJ imports not yet implemented.", Toast.LENGTH_LONG);
@@ -108,66 +116,31 @@ public class SceneformActivity extends AppCompatActivity {
 
     /**
      * Set a binary glTF file (*.glb) as the modelRenderable.
-     *
-     * @param uri content URI returned from ACTION_OPEN_DOCUMENT's resulting intent
      */
-    private void setModelRenderable(Uri uri) {
-        try {
-            /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
-               See: https://github.com/google-ar/sceneform-android-sdk/issues/477
-               So, extract an InputStream from the content URI, save it as a temp file,
-               and pass the URL (using the file:// scheme) of that temp file instead. */
-            Log.i(TAG, getString(R.string.log_write_temp_file_start));
-            String cacheFileName = String.valueOf(System.currentTimeMillis());
-            File cacheFile = File.createTempFile(cacheFileName, ".glb", getCacheDir());
-            FileOutputStream outputStream = new FileOutputStream(cacheFile);
-            IOUtils.copy(getContentResolver().openInputStream(uri), outputStream);
-            outputStream.close();
-            Log.i(TAG, getString(R.string.log_write_temp_file_done) + cacheFile.toURI().toString());
-
-            // Weird URI conversions coming up because java.net.URI != android.net.URI
-            ModelRenderable.builder()
-                    .setSource(this, RenderableSource.builder().setSource(
-                            this,
-                            Uri.parse(cacheFile.toURI().toString()),
-                            RenderableSource.SourceType.GLB)
-                            .setScale(0.5f)
-                            .setRecenterMode(RenderableSource.RecenterMode.ROOT)
-                            .build()
-                    )
-                    .setRegistryId(cacheFileName)
-                    .build()
-                    .thenAccept(renderable -> {
-                        modelRenderable = renderable;
-                        modelName = getContentUriName(uri);
-                        updateModelNameTextView();
-                    })
-                    .exceptionally(
-                            throwable -> {
-                                Log.e(TAG, null, throwable);
-                                showToast(R.string.error_import_failed_bad_render, Toast.LENGTH_LONG);
-                                return null;
-                            });
-        } catch (IOException e) {
-            Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
-            showToast(R.string.error_import_failed_io, Toast.LENGTH_LONG);
-        }
-    }
-
-    /**
-     * Get the filename (display name) of a given content URI.
-     *
-     * @param uri Content URI
-     * @return Filename (display name)
-     */
-    private String getContentUriName(Uri uri) {
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        assert cursor != null;
-        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        cursor.moveToFirst();
-        String displayName = cursor.getString(nameIndex);
-        cursor.close();
-        return displayName;
+    private void setModelRenderable(String filename, File cacheFile) {
+        // Weird URI conversions coming up because java.net.URI != android.net.URI
+        ModelRenderable.builder()
+                .setSource(this, RenderableSource.builder().setSource(
+                        this,
+                        Uri.parse(cacheFile.toURI().toString()),
+                        RenderableSource.SourceType.GLB)
+                        .setScale(0.5f)
+                        .setRecenterMode(RenderableSource.RecenterMode.ROOT)
+                        .build()
+                )
+                .setRegistryId(cacheFile.getName())
+                .build()
+                .thenAccept(renderable -> {
+                    modelRenderable = renderable;
+                    modelName = filename;
+                    updateModelNameTextView();
+                })
+                .exceptionally(
+                        throwable -> {
+                            Log.e(TAG, null, throwable);
+                            showToast(R.string.error_import_failed_bad_render, Toast.LENGTH_LONG);
+                            return null;
+                        });
     }
 
     /**
