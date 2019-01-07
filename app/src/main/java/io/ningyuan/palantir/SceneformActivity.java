@@ -1,5 +1,6 @@
 package io.ningyuan.palantir;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,11 +55,14 @@ public class SceneformActivity extends AppCompatActivity {
     }
 
     /**
-     * Receive a result from the importGlbButton's importIntent i.e. Intent.ACTION_OPEN_DOCUMENT
+     * Receive a result from a content provider. In this application, the only case in which this
+     * happens is from an {@link ImportButton}'s {@link Intent#ACTION_OPEN_DOCUMENT}.
      *
-     * @param requestCode  the request code passed to startActivityForResult i.e. IMPORT_FILE_RESULT
-     * @param resultCode   'exit code' by the external activity; RESULT_OK or RESULT_CANCELED
-     * @param resultIntent an Intent carrying data
+     * @param requestCode  the request code used in {@link #startActivityForResult(Intent, int)}.
+     *                     In this application, this can only be {@link ImportButton#IMPORT_FILE_RESULT}.
+     * @param resultCode   'exit code' by the external activity; either {@link #RESULT_OK} or
+     *                     {@link #RESULT_CANCELED}.
+     * @param resultIntent an {@link Intent} carrying data from the returning activity.
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
@@ -87,12 +91,28 @@ public class SceneformActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets the {@link #importMode} of this activity. The {@link #importMode} determines the
+     * behaviour of {@link #onActivityResult(int, int, Intent)} when a result {@link Intent} is
+     * received by this activity.
+     *
+     * {@link ImportButton}s will call this method to 'prepare' this activity to handle their
+     * respective import types. For example, the import button for glb files will ready this
+     * activity to handle glb files; likewise, the import obj button prepares the activity to handle
+     * obj files.
+     *
+     * @param importMode the import mode to set. Either {@link ImportButton#IMPORT_MODE_GLB} or
+     *                   {@link ImportButton#IMPORT_MODE_OBJ}.
+     */
     public void setImportMode(int importMode) {
         this.importMode = importMode;
     }
 
     /**
-     * Update modelNameTextView to show the current value of modelName.
+     * Updates the value of the {@link #modelNameTextView}. The {@link #modelNameTextView} is a UX
+     * element which indicates what model will be spawned by the {@link SceneformFragment}.
+     *
+     * @param newModelName the new value for the {@link #modelNameTextView}.
      */
     public void updateModelNameTextView(String newModelName) {
         modelNameTextView.setText(newModelName);
