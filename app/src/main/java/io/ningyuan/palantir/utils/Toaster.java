@@ -3,6 +3,9 @@ package io.ningyuan.palantir.utils;
 import android.content.Context;
 import android.widget.Toast;
 
+/**
+ * A utility class to spawn Toasts.
+ */
 public class Toaster {
     public static void showToast(Context context, int resourceId, int duration) {
         Toast toast = Toast.makeText(context, context.getString(resourceId), duration);

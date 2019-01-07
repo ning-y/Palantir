@@ -13,8 +13,9 @@ import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
 
 /**
- * {@link FloatingActionButton} extended to automatically register an {@link OnClickListener} which
- * runs the necessary steps to initiate a file (Wavefront OBJ or binary glTF) import.
+ * {@link FloatingActionButton} extended to automatically register an
+ * {@link android.view.View.OnClickListener} which runs the necessary steps to initiate a file
+ * (Wavefront OBJ or binary glTF) import.
  */
 public class ImportButton extends FloatingActionButton {
     public static final int IMPORT_FILE_RESULT = 1;
