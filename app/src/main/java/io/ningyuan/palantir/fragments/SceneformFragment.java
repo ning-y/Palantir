@@ -27,6 +27,8 @@ import java.io.File;
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
 
+import static io.ningyuan.palantir.utils.Toaster.showToast;
+
 public class SceneformFragment extends ArFragment {
     private static final double MIN_OPENGL_VERSION = 3.0;
     private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
@@ -50,7 +52,7 @@ public class SceneformFragment extends ArFragment {
                         .getGlEsVersion();
         if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
             Log.e(SceneformActivity.TAG, activity.getString(R.string.error_insufficient_opengl_version));
-            Toast toast = Toast.makeText(activity, R.string.error_insufficient_opengl_version, Toast.LENGTH_LONG);
+            showToast(activity, R.string.error_insufficient_opengl_version, Toast.LENGTH_LONG);
             activity.finish();
             return false;
         }
@@ -91,8 +93,7 @@ public class SceneformFragment extends ArFragment {
                 .exceptionally(
                         throwable -> {
                             Log.e(SceneformActivity.TAG, null, throwable);
-                            Toast toast = Toast.makeText(parentActivity, R.string.error_import_failed_bad_render, Toast.LENGTH_LONG);
-                            toast.show();
+                            showToast(parentActivity, R.string.error_import_failed_bad_render, Toast.LENGTH_LONG);
                             return null;
                         });
     }
@@ -101,8 +102,7 @@ public class SceneformFragment extends ArFragment {
         @Override
         public void onTapPlane(HitResult hitResult, Plane plane, MotionEvent motionEvent) {
             if (modelRenderable == null) {
-                Toast toast = Toast.makeText(parentActivity, R.string.error_no_model_renderable, Toast.LENGTH_LONG);
-                toast.show();
+                showToast(parentActivity, R.string.error_no_model_renderable, Toast.LENGTH_LONG);
             }
 
             // Create the Anchor.
