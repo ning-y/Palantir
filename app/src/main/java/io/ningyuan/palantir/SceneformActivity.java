@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
+import io.ningyuan.palantir.utils.ObjToGlb;
 import io.ningyuan.palantir.views.ImportButton;
 
 import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
@@ -69,6 +70,9 @@ public class SceneformActivity extends AppCompatActivity {
             return;
         }
 
+        Uri contentUri = resultIntent.getData();
+        String filename = getFilenameFromContentUri(this, contentUri);
+
         switch (importMode) {
             case IMPORT_MODE_GLB:
                 /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
@@ -76,8 +80,6 @@ public class SceneformActivity extends AppCompatActivity {
                    So, extract an InputStream from the content URI, save it as a temp file,
                    and pass the URL (using the file:// scheme) of that temp file instead. */
                 try {
-                    Uri contentUri = resultIntent.getData();
-                    String filename = getFilenameFromContentUri(this, contentUri);
                     File cacheFile = cacheFileFromContentUri(this, contentUri, ".glb");
                     sceneformFragment.setModelRenderable(filename, cacheFile);
                 } catch (IOException e) {
@@ -86,7 +88,14 @@ public class SceneformActivity extends AppCompatActivity {
                 }
                 break;
             case IMPORT_MODE_OBJ:
-                showToast(this, "Wavefront OBJ imports not yet implemented.", Toast.LENGTH_LONG);
+                try {
+                    File cacheFile = cacheFileFromContentUri(this, contentUri, ".obj");
+                    File glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
+                    sceneformFragment.setModelRenderable(filename, glbFile);
+                } catch (IOException e) {
+                    Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
+                    showToast(this, R.string.error_import_failed_io, Toast.LENGTH_LONG);
+                }
         }
     }
 
