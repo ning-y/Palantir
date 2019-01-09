@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
 public class SceneformActivity extends AppCompatActivity {
     public static final String TAG = SceneformActivity.class.getSimpleName();
 
+    private ProgressBar progressBar;
     private SceneformFragment sceneformFragment;
     private TextView modelNameTextView;
     private int importMode;
@@ -44,6 +47,7 @@ public class SceneformActivity extends AppCompatActivity {
 
         modelNameTextView = findViewById(R.id.model_name);
         updateModelNameTextView(getString(R.string.ux_model_renderable_not_yet_set));
+        progressBar = findViewById(R.id.progress_bar);
 
         final ImportButton importGlbButton = findViewById(R.id.import_glb_button);
         importGlbButton.setImportModeToTrigger(IMPORT_MODE_GLB);
@@ -56,7 +60,10 @@ public class SceneformActivity extends AppCompatActivity {
 
     /**
      * Receive a result from a content provider. In this application, the only case in which this
-     * happens is from an {@link ImportButton}'s {@link Intent#ACTION_OPEN_DOCUMENT}.
+     * happens is from an {@link ImportButton}'s {@link Intent#ACTION_OPEN_DOCUMENT}. A side-effect
+     * of this method is that the {@link #progressBar} will be set to {@link View#VISIBLE}. However,
+     * this {@link #progressBar} will be again set {@link View#INVISIBLE} through the
+     * {@link SceneformFragment#setModelRenderable(String, File, ProgressBar)} call.
      *
      * @param requestCode  the request code used in {@link #startActivityForResult(Intent, int)}.
      *                     In this application, this can only be {@link ImportButton#IMPORT_FILE_RESULT}.
@@ -70,6 +77,7 @@ public class SceneformActivity extends AppCompatActivity {
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
         Uri contentUri = resultIntent.getData();
         String filename = getFilenameFromContentUri(this, contentUri);
 
@@ -81,7 +89,7 @@ public class SceneformActivity extends AppCompatActivity {
                    and pass the URL (using the file:// scheme) of that temp file instead. */
                 try {
                     File cacheFile = cacheFileFromContentUri(this, contentUri, ".glb");
-                    sceneformFragment.setModelRenderable(filename, cacheFile);
+                    sceneformFragment.setModelRenderable(filename, cacheFile, progressBar);
                 } catch (IOException e) {
                     Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
                     showToast(this, R.string.error_import_failed_io, Toast.LENGTH_LONG);
@@ -91,7 +99,7 @@ public class SceneformActivity extends AppCompatActivity {
                 try {
                     File cacheFile = cacheFileFromContentUri(this, contentUri, ".obj");
                     File glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
-                    sceneformFragment.setModelRenderable(filename, glbFile);
+                    sceneformFragment.setModelRenderable(filename, glbFile, progressBar);
                 } catch (IOException e) {
                     Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
                     showToast(this, R.string.error_import_failed_io, Toast.LENGTH_LONG);
