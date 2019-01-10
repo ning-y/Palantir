@@ -12,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
@@ -29,7 +28,7 @@ import java.io.File;
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
 
-import static io.ningyuan.palantir.utils.Toaster.showToast;
+import static io.ningyuan.palantir.utils.Toaster.showToastLong;
 
 /**
  * {@link ArFragment} extended to automatically register an
@@ -37,7 +36,7 @@ import static io.ningyuan.palantir.utils.Toaster.showToast;
  * for changing the model to be rendered (using {@link #setModelRenderable(String, File, ProgressBar)}.
  */
 public class SceneformFragment extends ArFragment {
-    private static final String LOG_TAG = SceneformActivity.class.getSimpleName();
+    private static final String LOG_TAG = SceneformFragment.class.getSimpleName();
     private static final double MIN_OPENGL_VERSION = 3.0;
     private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
     private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
@@ -60,7 +59,7 @@ public class SceneformFragment extends ArFragment {
                         .getGlEsVersion();
         if (Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
             Log.e(LOG_TAG, activity.getString(R.string.error_insufficient_opengl_version));
-            showToast(activity, R.string.error_insufficient_opengl_version, Toast.LENGTH_LONG);
+            showToastLong(activity, R.string.error_insufficient_opengl_version);
             activity.finish();
             return false;
         }
@@ -77,10 +76,9 @@ public class SceneformFragment extends ArFragment {
     /**
      * Setter to obtain a reference to the parent activity of this {@link android.app.Fragment},
      * usually the {@link SceneformActivity}. {@link #parentActivity} is set here in this setter
-     * method rather than automatically in the {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     * method, because using something like {@link View#getParent()} in said method will return null,
-     * since the parent is not yet assigned while the {@link android.app.Fragment} is still being
-     * 'constructed'.
+     * method rather than automatically in {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)},
+     * because using {@link View#getParent()} in the latter will return null, since the parent is
+     * not yet assigned while the {@link android.app.Fragment} is still being 'constructed'.
      *
      * @param activity the activity to set as the {@link #parentActivity}, usually a
      *                 {@link SceneformActivity}.
@@ -90,19 +88,17 @@ public class SceneformFragment extends ArFragment {
     }
 
     /**
-     * Set a binary glTF file (*.glb) as the modelRenderable. The {@link SceneformActivity#progressBar}
-     * is passed explicity rather than accessed through {@link #parentActivity} to be more explicit.
+     * Set a binary glTF file (*.glb) as the modelRenderable.
      *
-     * @param filename    the name of the file which the user has selected. For example, if the
-     *                    user navigates and selects through the external content provider a file
-     *                    named "5CRO.glb", then the filename here would be "5CRO.glb".
-     * @param glbFile     a file accessible to this application (in terms of permissions), which is
-     *                    what is to be rendered.
-     * @param progressBar a {@link ProgressBar} to be set {@link View#INVISIBLE} once the
-     *                    modelRenderable is set successfully, or fails.
+     * @param filename the name of the file which the user has selected. For example, if the
+     *                 user navigates and selects through the external content provider a file
+     *                 named "5CRO.glb", then the filename here would be "5CRO.glb".
+     * @param glbFile  a file accessible to this application (in terms of permissions), which is
+     *                 what is to be rendered.
+     * @param thenDo   lambda to be called on success or failure
      * @see SceneformActivity#onActivityResult(int, int, Intent)
      */
-    public void setModelRenderable(String filename, File glbFile, ProgressBar progressBar) {
+    public void setModelRenderable(String filename, File glbFile, Runnable thenDo) {
         // Weird URI conversions coming up because java.net.URI != android.net.URI
         ModelRenderable.builder()
                 .setSource(parentActivity, RenderableSource.builder().setSource(
@@ -117,16 +113,15 @@ public class SceneformFragment extends ArFragment {
                 .build()
                 .thenAccept(renderable -> {
                     modelRenderable = renderable;
-                    parentActivity.updateModelNameTextView(filename);
-                    progressBar.setVisibility(View.INVISIBLE);
                     Log.i(LOG_TAG, "modelRenderable set as " + filename);
+                    thenDo.run();
 
                 })
                 .exceptionally(
                         throwable -> {
                             Log.e(LOG_TAG, null, throwable);
-                            showToast(parentActivity, R.string.error_import_failed_bad_render, Toast.LENGTH_LONG);
-                            progressBar.setVisibility(View.INVISIBLE);
+                            showToastLong(parentActivity, R.string.error_import_failed_bad_render);
+                            thenDo.run();
                             return null;
                         });
     }
@@ -139,7 +134,7 @@ public class SceneformFragment extends ArFragment {
         @Override
         public void onTapPlane(HitResult hitResult, Plane plane, MotionEvent motionEvent) {
             if (modelRenderable == null) {
-                showToast(parentActivity, R.string.error_no_model_renderable, Toast.LENGTH_LONG);
+                showToastLong(parentActivity, R.string.error_no_model_renderable);
             }
 
             // Create the Anchor.

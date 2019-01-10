@@ -8,18 +8,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.ObjToGlb;
+import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
 
 import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 import static io.ningyuan.palantir.utils.FileIo.getFilenameFromContentUri;
-import static io.ningyuan.palantir.utils.Toaster.showToast;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
@@ -44,9 +44,8 @@ public class SceneformActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_ux);
-
         modelNameTextView = findViewById(R.id.model_name);
-        updateModelNameTextView(getString(R.string.ux_model_renderable_not_yet_set));
+        modelNameTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
         progressBar = findViewById(R.id.progress_bar);
 
         final ImportButton importGlbButton = findViewById(R.id.import_glb_button);
@@ -60,10 +59,8 @@ public class SceneformActivity extends AppCompatActivity {
 
     /**
      * Receive a result from a content provider. In this application, the only case in which this
-     * happens is from an {@link ImportButton}'s {@link Intent#ACTION_OPEN_DOCUMENT}. A side-effect
-     * of this method is that the {@link #progressBar} will be set to {@link View#VISIBLE}. However,
-     * this {@link #progressBar} will be again set {@link View#INVISIBLE} through the
-     * {@link SceneformFragment#setModelRenderable(String, File, ProgressBar)} call.
+     * happens is from an {@link ImportButton}'s {@link #startActivityForResult(Intent, int)} using
+     * {@link Intent#ACTION_OPEN_DOCUMENT}.
      *
      * @param requestCode  the request code used in {@link #startActivityForResult(Intent, int)}.
      *                     In this application, this can only be {@link ImportButton#IMPORT_FILE_RESULT}.
@@ -77,33 +74,50 @@ public class SceneformActivity extends AppCompatActivity {
             return;
         }
 
+        String lastModelName = modelNameTextView.getText().toString();
+        modelNameTextView.setText("Loading...");
         progressBar.setVisibility(View.VISIBLE);
+
         Uri contentUri = resultIntent.getData();
         String filename = getFilenameFromContentUri(this, contentUri);
+        File glbFile = null;
 
-        switch (importMode) {
-            case IMPORT_MODE_GLB:
-                /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
-                   See: https://github.com/google-ar/sceneform-android-sdk/issues/477
-                   So, extract an InputStream from the content URI, save it as a temp file,
-                   and pass the URL (using the file:// scheme) of that temp file instead. */
-                try {
-                    File cacheFile = cacheFileFromContentUri(this, contentUri, ".glb");
-                    sceneformFragment.setModelRenderable(filename, cacheFile, progressBar);
-                } catch (IOException e) {
-                    Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
-                    showToast(this, R.string.error_import_failed_io, Toast.LENGTH_LONG);
-                }
-                break;
-            case IMPORT_MODE_OBJ:
-                try {
+        try {
+            switch (importMode) {
+                case IMPORT_MODE_GLB:
+                    /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
+                       See: https://github.com/google-ar/sceneform-android-sdk/issues/477
+                       So, extract an InputStream from the content URI, save it as a temp file,
+                       and pass the URL (using the file:// scheme) of that temp file instead. */
+                    glbFile = cacheFileFromContentUri(this, contentUri, ".glb");
+                    break;
+                case IMPORT_MODE_OBJ:
+                    /* Sceneform's does not support Wavefront OBJ files. Convert them to binary
+                       glTF (*.glb) first. */
                     File cacheFile = cacheFileFromContentUri(this, contentUri, ".obj");
-                    File glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
-                    sceneformFragment.setModelRenderable(filename, glbFile, progressBar);
-                } catch (IOException e) {
-                    Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
-                    showToast(this, R.string.error_import_failed_io, Toast.LENGTH_LONG);
-                }
+                    /* ObjToGlb.objFileToGlbFile can throw IllegalArgumentException or
+                       NoSuchElementException for non-obj files */
+                    glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
+                    break;
+            }
+
+            if (glbFile != null) {
+                sceneformFragment.setModelRenderable(filename, glbFile,
+                        () -> {
+                            modelNameTextView.setText(filename);
+                            progressBar.setVisibility(View.INVISIBLE);
+                        });
+            } else {
+                // ImportButton must use either IMPORT_MODE_GLB or IMPORT_MODE_OBJ, so glbFile
+                // should always be non-null
+                throw new IllegalStateException();
+            }
+
+        } catch (IOException | IllegalStateException | IllegalArgumentException | NoSuchElementException e) {
+            Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
+            Toaster.showToastLong(this, R.string.error_import_failed_io);
+            modelNameTextView.setText(lastModelName);
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -111,7 +125,7 @@ public class SceneformActivity extends AppCompatActivity {
      * Sets the {@link #importMode} of this activity. The {@link #importMode} determines the
      * behaviour of {@link #onActivityResult(int, int, Intent)} when a result {@link Intent} is
      * received by this activity.
-     *
+     * <p>
      * {@link ImportButton}s will call this method to 'prepare' this activity to handle their
      * respective import types. For example, the import button for glb files will ready this
      * activity to handle glb files; likewise, the import obj button prepares the activity to handle
@@ -123,15 +137,5 @@ public class SceneformActivity extends AppCompatActivity {
      */
     public void setImportMode(int importMode) {
         this.importMode = importMode;
-    }
-
-    /**
-     * Updates the value of the {@link #modelNameTextView}. The {@link #modelNameTextView} is a UX
-     * element which indicates what model will be spawned by the {@link SceneformFragment}.
-     *
-     * @param newModelName the new value for the {@link #modelNameTextView}.
-     */
-    public void updateModelNameTextView(String newModelName) {
-        modelNameTextView.setText(newModelName);
     }
 }

@@ -4,13 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.utils.Toaster;
 
 /**
  * {@link FloatingActionButton} extended to automatically register an
@@ -22,12 +22,12 @@ public class ImportButton extends FloatingActionButton {
     public static final int IMPORT_MODE_GLB = 1;
     public static final int IMPORT_MODE_OBJ = 2;
 
-    private SceneformActivity parentActivity;
     private int importModeToTrigger;
+    private SceneformActivity sceneformActivity;
 
     public ImportButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.parentActivity = (SceneformActivity) context;
+        this.sceneformActivity = (SceneformActivity) context;
         this.setOnClickListener(new OnClickListener());
     }
 
@@ -50,7 +50,7 @@ public class ImportButton extends FloatingActionButton {
      *
      * @see #ImportButton
      */
-    private class OnClickListener implements View.OnClickListener {
+    public class OnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -59,13 +59,12 @@ public class ImportButton extends FloatingActionButton {
             importIntent.setType("*/*");
 
             // Only startActivity if there is a resolvable activity; if not checked, will crash
-            if (importIntent.resolveActivity(parentActivity.getPackageManager()) != null) {
+            if (importIntent.resolveActivity(sceneformActivity.getPackageManager()) != null) {
                 ((FloatingActionsMenu) getParent()).collapse();
-                parentActivity.setImportMode(importModeToTrigger);
-                parentActivity.startActivityForResult(importIntent, IMPORT_FILE_RESULT);
+                sceneformActivity.setImportMode(importModeToTrigger);
+                sceneformActivity.startActivityForResult(importIntent, IMPORT_FILE_RESULT);
             } else {
-                Toast toast = Toast.makeText(parentActivity, R.string.error_no_resolvable_activity, Toast.LENGTH_LONG);
-                toast.show();
+                Toaster.showToastLong(sceneformActivity, R.string.error_no_resolvable_activity);
             }
         }
     }

@@ -11,7 +11,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Convenience methods for file I/O operations.
+ */
 public class FileIo {
+    /**
+     * From a content {@link Uri} (content://), obtain the real filename.
+     *
+     * @param context a {@link Context} with which to use {@link Context#getContentResolver()} and
+     *                therefore {@link android.content.ContentResolver#query(Uri, String[], String, String[], String)}.
+     * @param uri     the content {@link Uri}
+     * @return Real name of the file.
+     */
     public static String getFilenameFromContentUri(Context context, Uri uri) {
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         assert cursor != null;
@@ -22,6 +33,15 @@ public class FileIo {
         return filename;
     }
 
+    /**
+     * From a {@link Uri}, save the contents as a cache file (as in, in {@link Context#getCacheDir()}.
+     *
+     * @param context
+     * @param uri
+     * @param suffix
+     * @return the resulting cache {@link File}
+     * @throws IOException
+     */
     public static File cacheFileFromContentUri(Context context, Uri uri, String suffix) throws IOException {
         String cacheFileName = String.valueOf(System.currentTimeMillis());
         File cacheFile = File.createTempFile(cacheFileName, suffix, context.getCacheDir());

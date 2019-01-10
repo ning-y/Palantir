@@ -1,8 +1,9 @@
 <resources>
-  <style name="AppTheme" parent="Theme.AppCompat.Light"/>
 
-  <style name="FloatingActionButtonLabels">
-    <item name="android:background">@color/gray</item>
-    <item name="android:textColor">@color/white</item>
-  </style>
+    <style name="AppTheme" parent="Theme.AppCompat.Light" />
+
+    <style name="FloatingActionButtonLabels">
+        <item name="android:background">@color/gray</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
 </resources>
