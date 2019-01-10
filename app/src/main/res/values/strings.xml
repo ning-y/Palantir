@@ -3,6 +3,8 @@
     <!-- If app name changes, also do a grep/find for other occurrences in this file -->
     <string name="app_name">Palantir</string>
 
+    <string name="ux_model_renderable_not_yet_set">Click on the bottom-right button to import a 3D model</string>
+
     <string name="log_import_failed_io">Failed with IOException: </string>
     <string name="log_write_temp_file_done">Done writing cache file from content URI: </string>
     <string name="log_write_temp_file_start">Preparing to save cache file from content URI.</string>
