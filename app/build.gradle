@@ -41,6 +41,11 @@ android {
         abortOnError true
         warningsAsErrors true
     }
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
 }
 
 dependencies {
