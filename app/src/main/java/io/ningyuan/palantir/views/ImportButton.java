@@ -21,6 +21,7 @@ public class ImportButton extends FloatingActionButton {
     public static final int IMPORT_FILE_RESULT = 1;
     public static final int IMPORT_MODE_GLB = 1;
     public static final int IMPORT_MODE_OBJ = 2;
+    public static final int IMPORT_MODE_PDB = 3;
 
     private int importModeToTrigger;
     private SceneformActivity sceneformActivity;

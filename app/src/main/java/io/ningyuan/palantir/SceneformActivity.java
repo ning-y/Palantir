@@ -23,6 +23,7 @@ import static io.ningyuan.palantir.utils.FileIo.getFilenameFromContentUri;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
+import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_PDB;
 
 public class SceneformActivity extends AppCompatActivity {
     public static final String TAG = SceneformActivity.class.getSimpleName();
@@ -52,6 +53,8 @@ public class SceneformActivity extends AppCompatActivity {
         importGlbButton.setImportModeToTrigger(IMPORT_MODE_GLB);
         final ImportButton importObjButton = findViewById(R.id.import_obj_button);
         importObjButton.setImportModeToTrigger(IMPORT_MODE_OBJ);
+        final ImportButton importPdbButton = findViewById(R.id.import_pdb_button);
+        importPdbButton.setImportModeToTrigger(IMPORT_MODE_PDB);
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
@@ -98,6 +101,10 @@ public class SceneformActivity extends AppCompatActivity {
                     /* ObjToGlb.objFileToGlbFile can throw IllegalArgumentException or
                        NoSuchElementException for non-obj files */
                     glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
+                    break;
+                case IMPORT_MODE_PDB:
+                    File pdbFile = cacheFileFromContentUri(this, contentUri, ".pdb");
+                    Toaster.showToastLong(this, pdbFile.getAbsolutePath());
                     break;
             }
 
