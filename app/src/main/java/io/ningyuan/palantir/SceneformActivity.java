@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
+import io.ningyuan.palantir.utils.Cpp;
 import io.ningyuan.palantir.utils.ObjToGlb;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
@@ -104,7 +105,8 @@ public class SceneformActivity extends AppCompatActivity {
                     break;
                 case IMPORT_MODE_PDB:
                     File pdbFile = cacheFileFromContentUri(this, contentUri, ".pdb");
-                    Toaster.showToastLong(this, pdbFile.getAbsolutePath());
+                    String absPath = pdbFile.getAbsolutePath();
+                    Toaster.showToastLong(this, Cpp.cat(absPath));
                     break;
             }
 
