@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.ar.sceneform.plugin'
+apply plugin: 'org.ajoberstar.grgit'
 
 android {
     compileSdkVersion 27
@@ -38,7 +40,7 @@ android {
         }
     }
     lintOptions {
-        abortOnError true
+        abortOnError false
         warningsAsErrors true
     }
     externalNativeBuild {
@@ -48,6 +50,16 @@ android {
     }
 }
 
+task fetchVmdSrc {
+    description = 'Clone VMD source into src/main/vmd'
+    onlyIf { !(new File('./app/src/main/vmd').exists()) }
+    doLast {
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/vmd", uri: "https://github.com/ningyuansg/vmd.git")
+        delete "./app/src/main/vmd/.git"
+    }
+}
+preBuild.dependsOn fetchVmdSrc  // fetch VMD before building artifacts
+
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.getbase:floatingactionbutton:1.10.1'
@@ -56,5 +68,3 @@ dependencies {
     implementation 'commons-io:commons-io:2.6'
     implementation 'de.javagl:jgltf-obj:2.0.0'
 }
-
-apply plugin: 'com.google.ar.sceneform.plugin'

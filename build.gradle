@@ -10,6 +10,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.google.ar.sceneform:plugin:1.6.0'
+        classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
