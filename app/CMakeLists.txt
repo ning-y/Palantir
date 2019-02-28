@@ -7,3 +7,378 @@ add_library(
 
     src/main/cpp/cat.cpp
 )
+
+add_definitions(
+    -DNO_UNION_WAIT
+)
+
+include_directories(
+    src/main/tcl/generic
+    src/main/tcl/libtommath
+    src/main/tcl/unix
+)
+
+add_library(
+    tcl
+
+    STATIC
+
+    src/main/tcl/generic/regcomp.c
+    src/main/tcl/generic/regexec.c
+    src/main/tcl/generic/regfree.c
+    src/main/tcl/generic/regerror.c
+    src/main/tcl/generic/tclAlloc.c
+    src/main/tcl/generic/tclAsync.c
+    src/main/tcl/generic/tclBasic.c
+    src/main/tcl/generic/tclBinary.c
+    src/main/tcl/generic/tclCkalloc.c
+    src/main/tcl/generic/tclClock.c
+    src/main/tcl/generic/tclCmdAH.c
+    src/main/tcl/generic/tclCmdIL.c
+    src/main/tcl/generic/tclCmdMZ.c
+    src/main/tcl/generic/tclCompCmds.c
+    src/main/tcl/generic/tclCompExpr.c
+    src/main/tcl/generic/tclCompile.c
+    src/main/tcl/generic/tclConfig.c
+    src/main/tcl/generic/tclDate.c
+    src/main/tcl/generic/tclDictObj.c
+    src/main/tcl/generic/tclEncoding.c
+    src/main/tcl/generic/tclEnv.c
+    src/main/tcl/generic/tclEvent.c
+    src/main/tcl/generic/tclExecute.c
+    src/main/tcl/generic/tclFCmd.c
+    src/main/tcl/generic/tclFileName.c
+    src/main/tcl/generic/tclGet.c
+    src/main/tcl/generic/tclHash.c
+    src/main/tcl/generic/tclHistory.c
+    src/main/tcl/generic/tclIndexObj.c
+    src/main/tcl/generic/tclInterp.c
+    src/main/tcl/generic/tclIO.c
+    src/main/tcl/generic/tclIOCmd.c
+    src/main/tcl/generic/tclIOGT.c
+    src/main/tcl/generic/tclIOSock.c
+    src/main/tcl/generic/tclIOUtil.c
+    src/main/tcl/generic/tclIORChan.c
+    src/main/tcl/generic/tclLink.c
+    src/main/tcl/generic/tclListObj.c
+    src/main/tcl/generic/tclLiteral.c
+    src/main/tcl/generic/tclLoad.c
+    src/main/tcl/generic/tclMain.c
+    src/main/tcl/generic/tclNamesp.c
+    src/main/tcl/generic/tclNotify.c
+    src/main/tcl/generic/tclObj.c
+    src/main/tcl/generic/tclParse.c
+    src/main/tcl/generic/tclPathObj.c
+    src/main/tcl/generic/tclPipe.c
+    src/main/tcl/generic/tclPkg.c
+    src/main/tcl/generic/tclPkgConfig.c
+    src/main/tcl/generic/tclPosixStr.c
+    src/main/tcl/generic/tclPreserve.c
+    src/main/tcl/generic/tclProc.c
+    src/main/tcl/generic/tclRegexp.c
+    src/main/tcl/generic/tclResolve.c
+    src/main/tcl/generic/tclResult.c
+    src/main/tcl/generic/tclScan.c
+    src/main/tcl/generic/tclStubInit.c
+    src/main/tcl/generic/tclStubLib.c
+    src/main/tcl/generic/tclStringObj.c
+    src/main/tcl/generic/tclStrToD.c
+    src/main/tcl/generic/tclTest.c
+    src/main/tcl/generic/tclTestObj.c
+    src/main/tcl/generic/tclTestProcBodyObj.c
+    src/main/tcl/generic/tclThread.c
+    src/main/tcl/generic/tclThreadAlloc.c
+    src/main/tcl/generic/tclThreadJoin.c
+    src/main/tcl/generic/tclThreadStorage.c
+    src/main/tcl/generic/tclTimer.c
+    src/main/tcl/generic/tclTrace.c
+    src/main/tcl/generic/tclUtil.c
+    src/main/tcl/generic/tclVar.c
+
+    src/main/tcl/libtommath/bncore.c
+    src/main/tcl/libtommath/bn_reverse.c
+    src/main/tcl/libtommath/bn_fast_s_mp_mul_digs.c
+    src/main/tcl/libtommath/bn_fast_s_mp_sqr.c
+    src/main/tcl/libtommath/bn_mp_add.c
+    src/main/tcl/libtommath/bn_mp_add_d.c
+    src/main/tcl/libtommath/bn_mp_and.c
+    src/main/tcl/libtommath/bn_mp_clamp.c
+    src/main/tcl/libtommath/bn_mp_clear.c
+    src/main/tcl/libtommath/bn_mp_clear_multi.c
+    src/main/tcl/libtommath/bn_mp_cmp.c
+    src/main/tcl/libtommath/bn_mp_cmp_d.c
+    src/main/tcl/libtommath/bn_mp_cmp_mag.c
+    src/main/tcl/libtommath/bn_mp_copy.c
+    src/main/tcl/libtommath/bn_mp_cnt_lsb.c
+    src/main/tcl/libtommath/bn_mp_count_bits.c
+    src/main/tcl/libtommath/bn_mp_div.c
+    src/main/tcl/libtommath/bn_mp_div_d.c
+    src/main/tcl/libtommath/bn_mp_div_2.c
+    src/main/tcl/libtommath/bn_mp_div_2d.c
+    src/main/tcl/libtommath/bn_mp_div_3.c
+    src/main/tcl/libtommath/bn_mp_exch.c
+    src/main/tcl/libtommath/bn_mp_expt_d.c
+    src/main/tcl/libtommath/bn_mp_grow.c
+    src/main/tcl/libtommath/bn_mp_init.c
+    src/main/tcl/libtommath/bn_mp_init_copy.c
+    src/main/tcl/libtommath/bn_mp_init_multi.c
+    src/main/tcl/libtommath/bn_mp_init_set.c
+    src/main/tcl/libtommath/bn_mp_init_set_int.c
+    src/main/tcl/libtommath/bn_mp_init_size.c
+    src/main/tcl/libtommath/bn_mp_karatsuba_mul.c
+    src/main/tcl/libtommath/bn_mp_karatsuba_sqr.c
+    src/main/tcl/libtommath/bn_mp_lshd.c
+    src/main/tcl/libtommath/bn_mp_mod.c
+    src/main/tcl/libtommath/bn_mp_mod_2d.c
+    src/main/tcl/libtommath/bn_mp_mul.c
+    src/main/tcl/libtommath/bn_mp_mul_2.c
+    src/main/tcl/libtommath/bn_mp_mul_2d.c
+    src/main/tcl/libtommath/bn_mp_mul_d.c
+    src/main/tcl/libtommath/bn_mp_neg.c
+    src/main/tcl/libtommath/bn_mp_or.c
+    src/main/tcl/libtommath/bn_mp_radix_size.c
+    src/main/tcl/libtommath/bn_mp_radix_smap.c
+    src/main/tcl/libtommath/bn_mp_read_radix.c
+    src/main/tcl/libtommath/bn_mp_rshd.c
+    src/main/tcl/libtommath/bn_mp_set.c
+    src/main/tcl/libtommath/bn_mp_set_int.c
+    src/main/tcl/libtommath/bn_mp_shrink.c
+    src/main/tcl/libtommath/bn_mp_sqr.c
+    src/main/tcl/libtommath/bn_mp_sqrt.c
+    src/main/tcl/libtommath/bn_mp_sub.c
+    src/main/tcl/libtommath/bn_mp_sub_d.c
+    src/main/tcl/libtommath/bn_mp_to_unsigned_bin.c
+    src/main/tcl/libtommath/bn_mp_to_unsigned_bin_n.c
+    src/main/tcl/libtommath/bn_mp_toom_mul.c
+    src/main/tcl/libtommath/bn_mp_toom_sqr.c
+    src/main/tcl/libtommath/bn_mp_toradix_n.c
+    src/main/tcl/libtommath/bn_mp_unsigned_bin_size.c
+    src/main/tcl/libtommath/bn_mp_xor.c
+    src/main/tcl/libtommath/bn_mp_zero.c
+    src/main/tcl/libtommath/bn_s_mp_add.c
+    src/main/tcl/libtommath/bn_s_mp_mul_digs.c
+    src/main/tcl/libtommath/bn_s_mp_sqr.c
+    src/main/tcl/libtommath/bn_s_mp_sub.c
+
+
+    src/main/tcl/unix/tclAppInit.c
+    src/main/tcl/unix/tclUnixChan.c
+    src/main/tcl/unix/tclUnixEvent.c
+    src/main/tcl/unix/tclUnixFCmd.c
+    src/main/tcl/unix/tclUnixFile.c
+    src/main/tcl/unix/tclUnixPipe.c
+    src/main/tcl/unix/tclUnixSock.c
+    src/main/tcl/unix/tclUnixTest.c
+    src/main/tcl/unix/tclUnixThrd.c
+    src/main/tcl/unix/tclUnixTime.c
+    src/main/tcl/unix/tclUnixInit.c
+    src/main/tcl/unix/tclUnixCompat.c
+)
+
+add_definitions(
+    -DVMDMSMS # used in DrawMolItemMSMS.C
+    -DVMDNANOSHAPER # used in DrawMolitemNanoShaper.C
+    -DVMDSURF # used in DrawMolItemSurface.C
+)
+
+# solves 'vmdplugin.h' file not found
+include_directories(
+    src/main/vmd/plugins/include
+    src/main/vmd/vmd-1.9.3/src
+)
+
+# src/main/vmd/vmd-1.9.3/src/androidvmdstart.C has "unhandled compilation scenario"
+if (0) # just to comment this out
+add_executable(
+    vmd
+
+    /usr/include/values.h
+
+    src/main/vmd/vmd-1.9.3/src/Animation.C
+    src/main/vmd/vmd-1.9.3/src/ArtDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/AtomColor.C
+    src/main/vmd/vmd-1.9.3/src/AtomParser.C
+    src/main/vmd/vmd-1.9.3/src/AtomLexer.C
+    src/main/vmd/vmd-1.9.3/src/AtomRep.C
+    src/main/vmd/vmd-1.9.3/src/AtomSel.C
+    src/main/vmd/vmd-1.9.3/src/Axes.C
+    src/main/vmd/vmd-1.9.3/src/BaseMolecule.C
+    src/main/vmd/vmd-1.9.3/src/Benchmark.C
+    src/main/vmd/vmd-1.9.3/src/BondSearch.C
+    src/main/vmd/vmd-1.9.3/src/CmdAnimate.C
+    src/main/vmd/vmd-1.9.3/src/CmdColor.C
+    src/main/vmd/vmd-1.9.3/src/CmdDisplay.C
+    src/main/vmd/vmd-1.9.3/src/CmdLabel.C
+    src/main/vmd/vmd-1.9.3/src/CmdMaterial.C
+    src/main/vmd/vmd-1.9.3/src/CmdMenu.C
+    src/main/vmd/vmd-1.9.3/src/CmdMol.C
+    src/main/vmd/vmd-1.9.3/src/CmdRender.C
+    src/main/vmd/vmd-1.9.3/src/CmdTrans.C
+    src/main/vmd/vmd-1.9.3/src/CommandQueue.C
+    src/main/vmd/vmd-1.9.3/src/CoorPluginData.C
+    src/main/vmd/vmd-1.9.3/src/CUDAAccel.C
+    src/main/vmd/vmd-1.9.3/src/DisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/Displayable.C
+    src/main/vmd/vmd-1.9.3/src/DisplayRocker.C
+    src/main/vmd/vmd-1.9.3/src/DispCmds.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolecule.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItem.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItem2.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemRibbons.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemMSMS.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemNanoShaper.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemRings.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemOrbital.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemQuickSurf.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemSurface.C
+    src/main/vmd/vmd-1.9.3/src/DrawMolItemVolume.C
+    src/main/vmd/vmd-1.9.3/src/DrawForce.C
+    src/main/vmd/vmd-1.9.3/src/DrawRingsUtils.C
+    src/main/vmd/vmd-1.9.3/src/FileRenderList.C
+    src/main/vmd/vmd-1.9.3/src/FileRenderer.C
+    src/main/vmd/vmd-1.9.3/src/FPS.C
+    src/main/vmd/vmd-1.9.3/src/GelatoDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/GeometryAngle.C
+    src/main/vmd/vmd-1.9.3/src/GeometryAtom.C
+    src/main/vmd/vmd-1.9.3/src/GeometryBond.C
+    src/main/vmd/vmd-1.9.3/src/GeometryDihedral.C
+    src/main/vmd/vmd-1.9.3/src/GeometryList.C
+    src/main/vmd/vmd-1.9.3/src/GeometryMol.C
+    src/main/vmd/vmd-1.9.3/src/GeometrySpring.C
+    src/main/vmd/vmd-1.9.3/src/Hershey.C
+    src/main/vmd/vmd-1.9.3/src/HMDMgr.C
+    src/main/vmd/vmd-1.9.3/src/Inform.C
+    src/main/vmd/vmd-1.9.3/src/ImageIO.C
+    src/main/vmd/vmd-1.9.3/src/Isosurface.C
+    src/main/vmd/vmd-1.9.3/src/JRegex.C
+    src/main/vmd/vmd-1.9.3/src/JString.C
+    src/main/vmd/vmd-1.9.3/src/macosxvmdstart.C
+    src/main/vmd/vmd-1.9.3/src/MaterialList.C
+    src/main/vmd/vmd-1.9.3/src/Matrix4.C
+    src/main/vmd/vmd-1.9.3/src/MayaDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/MDFF.C
+    src/main/vmd/vmd-1.9.3/src/Measure.C
+    src/main/vmd/vmd-1.9.3/src/MeasureCluster.C
+    src/main/vmd/vmd-1.9.3/src/MeasurePBC.C
+    src/main/vmd/vmd-1.9.3/src/MeasureRDF.C
+    src/main/vmd/vmd-1.9.3/src/MeasureQCP.C
+    src/main/vmd/vmd-1.9.3/src/MeasureSurface.C
+    src/main/vmd/vmd-1.9.3/src/MeasureSymmetry.C
+    src/main/vmd/vmd-1.9.3/src/MobileInterface.C
+    src/main/vmd/vmd-1.9.3/src/MobileButtons.C
+    src/main/vmd/vmd-1.9.3/src/MobileTracker.C
+    src/main/vmd/vmd-1.9.3/src/Molecule.C
+    src/main/vmd/vmd-1.9.3/src/MoleculeList.C
+    src/main/vmd/vmd-1.9.3/src/MoleculeGraphics.C
+    src/main/vmd/vmd-1.9.3/src/MolFilePlugin.C
+    src/main/vmd/vmd-1.9.3/src/Mouse.C
+    src/main/vmd/vmd-1.9.3/src/MSMSInterface.C
+    src/main/vmd/vmd-1.9.3/src/NanoShaperInterface.C
+    src/main/vmd/vmd-1.9.3/src/Orbital.C
+    src/main/vmd/vmd-1.9.3/src/OrbitalJIT.C
+    src/main/vmd/vmd-1.9.3/src/PeriodicTable.C
+    src/main/vmd/vmd-1.9.3/src/P_JoystickTool.C
+    src/main/vmd/vmd-1.9.3/src/P_TugTool.C
+    src/main/vmd/vmd-1.9.3/src/P_GrabTool.C
+    src/main/vmd/vmd-1.9.3/src/P_PrintTool.C
+    src/main/vmd/vmd-1.9.3/src/P_PinchTool.C
+    src/main/vmd/vmd-1.9.3/src/P_UIVR.C
+    src/main/vmd/vmd-1.9.3/src/P_Buttons.C
+    src/main/vmd/vmd-1.9.3/src/P_Tracker.C
+    src/main/vmd/vmd-1.9.3/src/P_Tool.C
+    src/main/vmd/vmd-1.9.3/src/P_CmdTool.C
+    src/main/vmd/vmd-1.9.3/src/P_SensorConfig.C
+    src/main/vmd/vmd-1.9.3/src/ParseTree.C
+    src/main/vmd/vmd-1.9.3/src/PickList.C
+    src/main/vmd/vmd-1.9.3/src/PickModeAddBond.C
+    src/main/vmd/vmd-1.9.3/src/PickModeCenter.C
+    src/main/vmd/vmd-1.9.3/src/PickModeForce.C
+    src/main/vmd/vmd-1.9.3/src/PickModeList.C
+    src/main/vmd/vmd-1.9.3/src/PickModeMolLabel.C
+    src/main/vmd/vmd-1.9.3/src/PickModeMove.C
+    src/main/vmd/vmd-1.9.3/src/PickModeUser.C
+    src/main/vmd/vmd-1.9.3/src/PlainTextInterp.C
+    src/main/vmd/vmd-1.9.3/src/PluginMgr.C
+    src/main/vmd/vmd-1.9.3/src/POV3DisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/PSDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/QMData.C
+    src/main/vmd/vmd-1.9.3/src/QMTimestep.C
+    src/main/vmd/vmd-1.9.3/src/QuickSurf.C
+    src/main/vmd/vmd-1.9.3/src/RadianceDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/RayShadeDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/R3dDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/RenderManDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/Scene.C
+    src/main/vmd/vmd-1.9.3/src/SnapshotDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/Spaceball.C
+    src/main/vmd/vmd-1.9.3/src/SpaceballButtons.C
+    src/main/vmd/vmd-1.9.3/src/SpaceballTracker.C
+    src/main/vmd/vmd-1.9.3/src/SpatialSearch.C
+    src/main/vmd/vmd-1.9.3/src/SpringTool.C
+    src/main/vmd/vmd-1.9.3/src/Stage.C
+    src/main/vmd/vmd-1.9.3/src/STLDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/Stride.C
+    src/main/vmd/vmd-1.9.3/src/Surf.C
+    src/main/vmd/vmd-1.9.3/src/SymbolTable.C
+    src/main/vmd/vmd-1.9.3/src/TachyonDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/Timestep.C
+    src/main/vmd/vmd-1.9.3/src/UIObject.C
+    src/main/vmd/vmd-1.9.3/src/UIText.C
+    src/main/vmd/vmd-1.9.3/src/VMDApp.C
+    src/main/vmd/vmd-1.9.3/src/VMDCollab.C
+    src/main/vmd/vmd-1.9.3/src/VMDDir.C
+    src/main/vmd/vmd-1.9.3/src/VMDDisplayList.C
+    src/main/vmd/vmd-1.9.3/src/VMDMenu.C
+    src/main/vmd/vmd-1.9.3/src/VMDQuat.C
+    src/main/vmd/vmd-1.9.3/src/VMDTitle.C
+    src/main/vmd/vmd-1.9.3/src/VMDThreads.C
+    src/main/vmd/vmd-1.9.3/src/VolCPotential.C
+    src/main/vmd/vmd-1.9.3/src/VolMapCreate.C
+    src/main/vmd/vmd-1.9.3/src/VolMapCreateILS.C
+    src/main/vmd/vmd-1.9.3/src/VolumetricData.C
+    src/main/vmd/vmd-1.9.3/src/VolumeTexture.C
+    src/main/vmd/vmd-1.9.3/src/VrmlDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/Vrml2DisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/WavefrontDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/WKFThreads.C
+    src/main/vmd/vmd-1.9.3/src/WKFUtils.C
+    src/main/vmd/vmd-1.9.3/src/utilities.C
+    src/main/vmd/vmd-1.9.3/src/util_simd.C
+    src/main/vmd/vmd-1.9.3/src/vmd.C
+    src/main/vmd/vmd-1.9.3/src/vmdmain.C
+    src/main/vmd/vmd-1.9.3/src/X3DDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/ColorInfo.C
+    src/main/vmd/vmd-1.9.3/src/TclCommands.C
+    src/main/vmd/vmd-1.9.3/src/TclMDFF.C
+    src/main/vmd/vmd-1.9.3/src/TclMeasure.C
+    src/main/vmd/vmd-1.9.3/src/TclMolInfo.C
+    src/main/vmd/vmd-1.9.3/src/TclTextInterp.C
+    src/main/vmd/vmd-1.9.3/src/TclVec.C
+    src/main/vmd/vmd-1.9.3/src/TclGraphics.C
+    src/main/vmd/vmd-1.9.3/src/TclVolMap.C
+    src/main/vmd/vmd-1.9.3/src/cmd_animate.C
+    src/main/vmd/vmd-1.9.3/src/cmd_collab.C
+    src/main/vmd/vmd-1.9.3/src/cmd_color.C
+    src/main/vmd/vmd-1.9.3/src/cmd_display.C
+    src/main/vmd/vmd-1.9.3/src/cmd_imd.C
+    src/main/vmd/vmd-1.9.3/src/cmd_label.C
+    src/main/vmd/vmd-1.9.3/src/cmd_material.C
+    src/main/vmd/vmd-1.9.3/src/cmd_menu.C
+    src/main/vmd/vmd-1.9.3/src/cmd_mobile.C
+    src/main/vmd/vmd-1.9.3/src/cmd_mol.C
+    src/main/vmd/vmd-1.9.3/src/cmd_mouse.C
+    src/main/vmd/vmd-1.9.3/src/cmd_parallel.C
+    src/main/vmd/vmd-1.9.3/src/cmd_plugin.C
+    src/main/vmd/vmd-1.9.3/src/cmd_render.C
+    src/main/vmd/vmd-1.9.3/src/cmd_spaceball.C
+    src/main/vmd/vmd-1.9.3/src/cmd_tool.C
+    src/main/vmd/vmd-1.9.3/src/cmd_trans.C
+    src/main/vmd/vmd-1.9.3/src/cmd_user.C
+    src/main/vmd/vmd-1.9.3/src/cmd_util.C
+    src/main/vmd/vmd-1.9.3/src/cmd_vmdbench.C
+    src/main/vmd/vmd-1.9.3/src/tcl_commands.C
+    src/main/vmd/vmd-1.9.3/src/VMDTkMenu.C
+
+)
+endif()
+

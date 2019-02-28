@@ -26,6 +26,11 @@ android {
              */
             abiFilters 'arm64-v8a', 'x86'
         }
+        externalNativeBuild {
+            cmake {
+                targets 'tcl'//, 'vmd'
+            }
+        }
     }
     // Sceneform libraries use language constructs from Java 8.
     // Add these compile options if targeting minSdkVersion < 26.
@@ -59,6 +64,16 @@ task fetchVmdSrc {
     }
 }
 preBuild.dependsOn fetchVmdSrc  // fetch VMD before building artifacts
+
+task fetchTclSrc {
+    description = 'Clone TCL source into src/main/tcl'
+    onlyIf { !(new File('./app/src/main/tcl').exists()) }
+    doLast {
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/tcl", uri: "https://github.com/ningyuansg/tcl8.5.19.git")
+        delete "./app/src/main/tcl/.git"
+    }
+}
+preBuild.dependsOn fetchTclSrc  // fetch VMD before building artifacts
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
