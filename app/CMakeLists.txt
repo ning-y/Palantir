@@ -1,13 +1,5 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-add_library(
-    cat
-
-    SHARED
-
-    src/main/cpp/cat.cpp
-)
-
 add_definitions(
     -DNO_UNION_WAIT
 )
