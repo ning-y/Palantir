@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.2)
 
 add_definitions(
-    -DNO_UNION_WAIT
+    -DNO_UNION_WAIT  # used in unix/tclUnixPort.h
 )
 
 include_directories(
@@ -168,9 +168,9 @@ add_library(
 )
 
 add_definitions(
-    -DVMDMSMS # used in DrawMolItemMSMS.C
-    -DVMDNANOSHAPER # used in DrawMolitemNanoShaper.C
-    -DVMDSURF # used in DrawMolItemSurface.C
+    -DVMDMSMS  # used in DrawMolItemMSMS.C
+    -DVMDNANOSHAPER  # used in DrawMolitemNanoShaper.C
+    -DVMDSURF  # used in DrawMolItemSurface.C
 )
 
 # solves 'vmdplugin.h' file not found
