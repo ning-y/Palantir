@@ -15,6 +15,8 @@ add_definitions(
     -DCFG_RUNTIME_INCDIR="${CMAKE_CACHEFILE_DIR}"
     -DCFG_RUNTIME_DOCDIR="${CMAKE_CACHEFILE_DIR}"
     -DTCL_CFGVAL_ENCODING="iso8859-1"
+    -DTCL_LIBRARY="${CMAKE_CACHEFILE_DIR}"  # used in unix/tclUnixInit.c
+    -DTCL_PACKAGE_PATH="${CMAKE_CACHEFILE_DIR}"
 )
 
 include_directories(
