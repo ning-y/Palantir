@@ -1,7 +1,19 @@
 cmake_minimum_required(VERSION 3.10.2)
 
+### Compile TCL ###
+
 add_definitions(
     -DNO_UNION_WAIT  # used in unix/tclUnixPort.h
+    -DCFG_INSTALL_LIBDIR="${CMAKE_CACHEFILE_DIR}"  # used in generic/tclPkgConfig.c
+    -DCFG_INSTALL_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
+    -DCFG_INSTALL_SCRDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_INSTALL_INCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_INSTALL_DOCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_LIBDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
+    -DCFG_RUNTIME_SCRDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_INCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_DOCDIR="${CMAKE_CACHEFILE_DIR}"
 )
 
 include_directories(
@@ -166,6 +178,8 @@ add_library(
     src/main/tcl/unix/tclUnixInit.c
     src/main/tcl/unix/tclUnixCompat.c
 )
+
+### Compile VMD ###
 
 add_definitions(
     -DVMDMSMS  # used in DrawMolItemMSMS.C
