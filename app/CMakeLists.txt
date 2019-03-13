@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.10.2)
 
 add_definitions(
     -DNO_UNION_WAIT  # used in unix/tclUnixPort.h
+    -DSTDC_HEADERS  # used in tclInt.h
     -DCFG_INSTALL_LIBDIR="${CMAKE_CACHEFILE_DIR}"  # used in generic/tclPkgConfig.c
     -DCFG_INSTALL_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
     -DCFG_INSTALL_SCRDIR="${CMAKE_CACHEFILE_DIR}"
