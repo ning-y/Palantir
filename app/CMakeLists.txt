@@ -186,6 +186,7 @@ add_library(
 ### Compile VMD ###
 
 add_definitions(
+    -DARCH_ANDROIDARMV7A  # used in AtomParser.C
     -DVMDMSMS  # used in DrawMolItemMSMS.C
     -DVMDNANOSHAPER  # used in DrawMolitemNanoShaper.C
     -DVMDSURF  # used in DrawMolItemSurface.C
@@ -198,7 +199,6 @@ include_directories(
 )
 
 # src/main/vmd/vmd-1.9.3/src/androidvmdstart.C has "unhandled compilation scenario"
-if (0) # just to comment this out
 add_executable(
     vmd
 
@@ -388,7 +388,4 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/cmd_vmdbench.C
     src/main/vmd/vmd-1.9.3/src/tcl_commands.C
     src/main/vmd/vmd-1.9.3/src/VMDTkMenu.C
-
 )
-endif()
-

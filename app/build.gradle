@@ -28,7 +28,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                targets 'tcl'//, 'vmd'
+                targets 'tcl', 'vmd'
             }
         }
     }
