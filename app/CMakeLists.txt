@@ -395,4 +395,5 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/utilities.C
     src/main/vmd/vmd-1.9.3/src/vmd.C
     src/main/vmd/vmd-1.9.3/src/vmdmain.C
+    src/main/vmd/vmd-1.9.3/src/vmdsock.c
 )
