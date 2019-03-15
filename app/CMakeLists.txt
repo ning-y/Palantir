@@ -207,7 +207,6 @@ add_executable(
     vmd
 
     /usr/include/values.h
-    src/main/vmd/vmd-1.9.3/src/NameList.h
 
     src/main/vmd/vmd-1.9.3/src/Animation.C
     src/main/vmd/vmd-1.9.3/src/ArtDisplayDevice.C
@@ -390,6 +389,7 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/cmd_vmdbench.C
     src/main/vmd/vmd-1.9.3/src/intstack.c
     src/main/vmd/vmd-1.9.3/src/macosxvmdstart.C
+    src/main/vmd/vmd-1.9.3/src/pcre.c
     src/main/vmd/vmd-1.9.3/src/tcl_commands.C
     src/main/vmd/vmd-1.9.3/src/util_simd.C
     src/main/vmd/vmd-1.9.3/src/utilities.C
