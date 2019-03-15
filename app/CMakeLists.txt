@@ -367,6 +367,7 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/WKFUtils.C
     src/main/vmd/vmd-1.9.3/src/WavefrontDisplayDevice.C
     src/main/vmd/vmd-1.9.3/src/X3DDisplayDevice.C
+    src/main/vmd/vmd-1.9.3/src/androidvmdstart.C
     src/main/vmd/vmd-1.9.3/src/cmd_animate.C
     src/main/vmd/vmd-1.9.3/src/cmd_collab.C
     src/main/vmd/vmd-1.9.3/src/cmd_color.C
