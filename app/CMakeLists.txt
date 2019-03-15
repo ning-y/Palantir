@@ -194,7 +194,7 @@ add_definitions(
 )
 
 # used in vmdmain.C; otherwise main function named vmdmain
-set_source_files_properties(vmdmain.C PROPERTIES COMPILE_FLAGS -DANDROID=0)
+set_source_files_properties(src/main/vmd/vmd-1.9.3/src/vmdmain.C PROPERTIES COMPILE_FLAGS -UANDROID)
 
 # solves 'vmdplugin.h' file not found
 include_directories(
