@@ -1,19 +1,14 @@
-# Android Studio configuration.
+# # Configuration files
+.*
 *.iml
-.idea/
-#
-# # Gradle configuration.
-.gradle/
+
+# # Builds
 build/
-#
+app/src/main/assets/vmd
+
 # # User configuration.
 local.properties
-#
-# # OS configurations.
-.DS_Store
-#
-# # VMD source
+
+# # VMD, TCL source
 app/src/main/vmd
-#
-# # TCL source
 app/src/main/tcl
