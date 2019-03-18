@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.ObjToGlb;
+import io.ningyuan.palantir.utils.PdbToObj;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
 
@@ -39,6 +40,7 @@ public class SceneformActivity extends AppCompatActivity {
     // FutureReturnValueIgnored is not valid
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PdbToObj.init(getApplicationContext());
 
         if (!SceneformFragment.checkIsSupportedDeviceOrFinish(this)) {
             return;
