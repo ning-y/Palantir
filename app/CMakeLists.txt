@@ -399,4 +399,4 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/vmdsock.c
 )
 
-set_target_properties(vmd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets)
+set_target_properties(vmd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI})
