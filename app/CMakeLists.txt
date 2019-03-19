@@ -195,6 +195,8 @@ add_definitions(
 
 # used in vmdmain.C; otherwise main function named vmdmain
 set_source_files_properties(src/main/vmd/vmd-1.9.3/src/vmdmain.C PROPERTIES COMPILE_FLAGS -UANDROID)
+# otherwise, undefined reference to log_android
+set_source_files_properties(src/main/vmd/vmd-1.9.3/src/Inform.C PROPERTIES COMPILE_FLAGS -UANDROID)
 
 # solves 'vmdplugin.h' file not found
 include_directories(
@@ -202,7 +204,6 @@ include_directories(
     src/main/vmd/vmd-1.9.3/src
 )
 
-# src/main/vmd/vmd-1.9.3/src/androidvmdstart.C has "unhandled compilation scenario"
 add_executable(
     vmd
 

@@ -5,10 +5,12 @@ import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import io.ningyuan.palantir.SceneformActivity;
 
@@ -34,6 +36,33 @@ public class PdbToObj {
             } catch (IOException e) { }
         } else {
             Log.i(TAG, "Found vmd in internal storage.");
+        }
+    }
+
+    public static void logVmdHelp(Context context) {
+        Log.d(TAG, "Starting logVmdHelp");
+        File vmd = context.getFileStreamPath("vmd");
+        Log.d(TAG, String.format("vmd.exists(): %b", vmd.exists()));
+
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{vmd.getAbsolutePath(), "--help"});
+            InputStream stdout = process.getInputStream();
+            InputStream stderr = process.getErrorStream();
+
+            String line;
+            BufferedReader outReader = new BufferedReader(new InputStreamReader(stdout));
+            while ((line = outReader.readLine()) != null) {
+                Log.d(TAG, line);
+            }
+
+            BufferedReader errReader = new BufferedReader(new InputStreamReader(stderr));
+            while ((line = errReader.readLine()) != null) {
+                Log.d(TAG, line);
+            }
+
+            Log.d(TAG, "Done with logVmdHelp");
+        } catch (IOException e) {
+            Log.e(TAG, "Something went wrong with VMD!");
         }
     }
 }

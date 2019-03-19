@@ -41,6 +41,7 @@ public class SceneformActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PdbToObj.init(getApplicationContext());
+        PdbToObj.logVmdHelp(getApplicationContext());
 
         if (!SceneformFragment.checkIsSupportedDeviceOrFinish(this)) {
             return;
