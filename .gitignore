@@ -5,6 +5,7 @@
 # # Builds
 build/
 app/src/main/assets/**/vmd
+app/src/main/assets/*.dat
 
 # # User configuration.
 local.properties

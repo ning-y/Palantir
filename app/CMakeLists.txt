@@ -401,3 +401,7 @@ add_executable(
 )
 
 set_target_properties(vmd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI})
+configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/restypes.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)
+configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/materials.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)
+configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/colordefs.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)
+configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/atomselmacros.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)

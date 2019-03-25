@@ -37,8 +37,8 @@ public class ImportButton extends FloatingActionButton {
      * button.
      *
      * @param importModeToTrigger the value which {@link SceneformActivity#importMode} should be
-     *                            set to upon clock of this button. Either {@link #IMPORT_MODE_GLB}
-     *                            or {@link #IMPORT_MODE_OBJ}.
+     *                            set to upon clock of this button. Either {@link #IMPORT_MODE_GLB},
+     *                            {@link #IMPORT_MODE_OBJ}, or {@link #IMPORT_MODE_PDB}.
      * @see SceneformActivity#setImportMode(int)
      */
     public void setImportModeToTrigger(int importModeToTrigger) {

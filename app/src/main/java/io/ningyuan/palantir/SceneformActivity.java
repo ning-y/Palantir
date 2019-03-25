@@ -40,8 +40,8 @@ public class SceneformActivity extends AppCompatActivity {
     // FutureReturnValueIgnored is not valid
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PdbToObj.init(getApplicationContext());
-        PdbToObj.logVmdHelp(getApplicationContext());
+        PdbToObj.initVmd(getApplicationContext());
+        PdbToObj.initDat(getApplicationContext());
 
         if (!SceneformFragment.checkIsSupportedDeviceOrFinish(this)) {
             return;
@@ -76,6 +76,11 @@ public class SceneformActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        Log.d(TAG, String.format(
+                "onActivityResult called with requestCode %d; resultCode %d; importMode %d",
+                requestCode, resultCode, importMode
+        ));
+
         if (requestCode != IMPORT_FILE_RESULT || resultCode != RESULT_OK) {
             return;
         }
@@ -107,8 +112,8 @@ public class SceneformActivity extends AppCompatActivity {
                     break;
                 case IMPORT_MODE_PDB:
                     File pdbFile = cacheFileFromContentUri(this, contentUri, ".pdb");
-                    String absPath = pdbFile.getAbsolutePath();
-                    Toaster.showToastLong(this, "WIP");
+                    File objFile = PdbToObj.pdbFileToObjFile(this, pdbFile);
+                    glbFile = ObjToGlb.objFileToGlbFile(this, objFile);
                     break;
             }
 
