@@ -8,12 +8,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import javax.xml.transform.Result;
+
 import io.ningyuan.palantir.fragments.SceneformFragment;
+import io.ningyuan.palantir.utils.AsyncPOC;
 import io.ningyuan.palantir.utils.ObjToGlb;
 import io.ningyuan.palantir.utils.PdbToObj;
 import io.ningyuan.palantir.utils.Toaster;
@@ -111,9 +115,15 @@ public class SceneformActivity extends AppCompatActivity {
                     glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
                     break;
                 case IMPORT_MODE_PDB:
+                    new AsyncPOC(
+                            this,
+                            Toast.makeText(this, "5s", Toast.LENGTH_SHORT),
+                            Toast.makeText(this, "10s", Toast.LENGTH_SHORT)
+                    ).execute("calling from SceneformActivity");
+                    /*
                     File pdbFile = cacheFileFromContentUri(this, contentUri, ".pdb");
                     File objFile = PdbToObj.pdbFileToObjFile(this, pdbFile);
-                    glbFile = ObjToGlb.objFileToGlbFile(this, objFile);
+                    glbFile = ObjToGlb.objFileToGlbFile(this, objFile); */
                     break;
             }
 
@@ -153,5 +163,9 @@ public class SceneformActivity extends AppCompatActivity {
      */
     public void setImportMode(int importMode) {
         this.importMode = importMode;
+    }
+
+    public void updateModelNameTextView(String updateTo) {
+        modelNameTextView.setText(updateTo);
     }
 }
