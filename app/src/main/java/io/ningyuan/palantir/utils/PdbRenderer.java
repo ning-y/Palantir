@@ -48,7 +48,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         try {
             File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
             File objFile = pdbFileToObjFile(sceneformActivity, pdbFile);
-            File glbFile = ObjToGlb.objFileToGlbFile(sceneformActivity, objFile);
+            File glbFile = ObjRenderer.objFileToGlbFile(sceneformActivity, objFile);
             return glbFile;
         } catch (IOException e) {
             e.printStackTrace();

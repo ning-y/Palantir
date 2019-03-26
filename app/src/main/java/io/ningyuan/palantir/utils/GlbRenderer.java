@@ -9,17 +9,25 @@ import java.io.IOException;
 import io.ningyuan.palantir.SceneformActivity;
 
 public class GlbRenderer extends AsyncTask<Uri, Void, File> {
+    private boolean skipOnPreExecute;
     private SceneformActivity sceneformActivity;
     private String modelName;
 
-    public GlbRenderer (SceneformActivity sceneformActivity, String modelName) {
+    public GlbRenderer(SceneformActivity sceneformActivity, String modelName) {
         this.sceneformActivity = sceneformActivity;
         this.modelName = modelName;
     }
 
+    public GlbRenderer(SceneformActivity sceneformActivity, String modelName, Boolean skipOnPreExecute) {
+        this(sceneformActivity, modelName);
+        this.skipOnPreExecute = skipOnPreExecute;
+    }
+
     @Override
     protected void onPreExecute() {
-        sceneformActivity.updateModelNameTextView("Importing .glb file...");
+        if (!skipOnPreExecute) {
+            sceneformActivity.updateModelNameTextView("Importing .glb file...");
+        }
     }
 
     @Override

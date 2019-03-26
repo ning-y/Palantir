@@ -1,6 +1,8 @@
 package io.ningyuan.palantir.utils;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,11 +13,46 @@ import de.javagl.jgltf.model.GltfModels;
 import de.javagl.jgltf.model.io.GltfAsset;
 import de.javagl.jgltf.model.io.GltfModelWriter;
 import de.javagl.jgltf.obj.v2.ObjGltfAssetCreatorV2;
+import io.ningyuan.palantir.SceneformActivity;
 
 /**
  * Methods for Wavefront OBJ to binary glTF file conversions.
  */
-public class ObjToGlb {
+public class ObjRenderer extends AsyncTask<Uri, Void, File> {
+    private SceneformActivity sceneformActivity;
+    private String modelName;
+
+    public ObjRenderer(SceneformActivity sceneformActivity, String modelName) {
+        this.sceneformActivity = sceneformActivity;
+        this.modelName = modelName;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        sceneformActivity.updateModelNameTextView("Importing .obj file...");
+    }
+
+    @Override
+    protected File doInBackground(Uri... contentUris) {
+        try {
+            /* Sceneform's does not support Wavefront OBJ files. Convert them to binary
+               glTF (*.glb) first. */
+            File objFile = FileIo.cacheFileFromContentUri(sceneformActivity, contentUris[0], ".obj");
+            File glbFile = objFileToGlbFile(sceneformActivity, objFile);
+            return glbFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(File glbFile) {
+        new GlbRenderer(sceneformActivity, modelName, true)
+                .execute(FileIo.javaUriToAndroidUri(glbFile.toURI()));
+    }
+
     /**
      * From a Wavefront OBJ {@link File}, save a new binary glTF {@link File}.
      *

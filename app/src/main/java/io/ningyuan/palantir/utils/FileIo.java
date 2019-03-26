@@ -50,4 +50,8 @@ public class FileIo {
         outputStream.close();
         return cacheFile;
     }
+
+    public static android.net.Uri javaUriToAndroidUri(java.net.URI javaUri) {
+        return android.net.Uri.parse(javaUri.toString());
+    }
 }
