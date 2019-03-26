@@ -32,9 +32,9 @@ add_library(
     STATIC
 
     src/main/tcl/generic/regcomp.c
+    src/main/tcl/generic/regerror.c
     src/main/tcl/generic/regexec.c
     src/main/tcl/generic/regfree.c
-    src/main/tcl/generic/regerror.c
     src/main/tcl/generic/tclAlloc.c
     src/main/tcl/generic/tclAsync.c
     src/main/tcl/generic/tclBasic.c
@@ -49,6 +49,7 @@ add_library(
     src/main/tcl/generic/tclCompile.c
     src/main/tcl/generic/tclConfig.c
     src/main/tcl/generic/tclDate.c
+    src/main/tcl/generic/tclDecls.h
     src/main/tcl/generic/tclDictObj.c
     src/main/tcl/generic/tclEncoding.c
     src/main/tcl/generic/tclEnv.c
@@ -59,14 +60,14 @@ add_library(
     src/main/tcl/generic/tclGet.c
     src/main/tcl/generic/tclHash.c
     src/main/tcl/generic/tclHistory.c
-    src/main/tcl/generic/tclIndexObj.c
-    src/main/tcl/generic/tclInterp.c
     src/main/tcl/generic/tclIO.c
     src/main/tcl/generic/tclIOCmd.c
     src/main/tcl/generic/tclIOGT.c
+    src/main/tcl/generic/tclIORChan.c
     src/main/tcl/generic/tclIOSock.c
     src/main/tcl/generic/tclIOUtil.c
-    src/main/tcl/generic/tclIORChan.c
+    src/main/tcl/generic/tclIndexObj.c
+    src/main/tcl/generic/tclInterp.c
     src/main/tcl/generic/tclLink.c
     src/main/tcl/generic/tclListObj.c
     src/main/tcl/generic/tclLiteral.c
@@ -75,6 +76,7 @@ add_library(
     src/main/tcl/generic/tclNamesp.c
     src/main/tcl/generic/tclNotify.c
     src/main/tcl/generic/tclObj.c
+    src/main/tcl/generic/tclPanic.c
     src/main/tcl/generic/tclParse.c
     src/main/tcl/generic/tclPathObj.c
     src/main/tcl/generic/tclPipe.c
@@ -87,10 +89,10 @@ add_library(
     src/main/tcl/generic/tclResolve.c
     src/main/tcl/generic/tclResult.c
     src/main/tcl/generic/tclScan.c
+    src/main/tcl/generic/tclStrToD.c
+    src/main/tcl/generic/tclStringObj.c
     src/main/tcl/generic/tclStubInit.c
     src/main/tcl/generic/tclStubLib.c
-    src/main/tcl/generic/tclStringObj.c
-    src/main/tcl/generic/tclStrToD.c
     src/main/tcl/generic/tclTest.c
     src/main/tcl/generic/tclTestObj.c
     src/main/tcl/generic/tclTestProcBodyObj.c
@@ -99,12 +101,13 @@ add_library(
     src/main/tcl/generic/tclThreadJoin.c
     src/main/tcl/generic/tclThreadStorage.c
     src/main/tcl/generic/tclTimer.c
+    src/main/tcl/generic/tclTomMathInterface.c
     src/main/tcl/generic/tclTrace.c
+    src/main/tcl/generic/tclUtf.c
     src/main/tcl/generic/tclUtil.c
     src/main/tcl/generic/tclVar.c
+    src/main/tcl/unix/tclLoadDl.c
 
-    src/main/tcl/libtommath/bncore.c
-    src/main/tcl/libtommath/bn_reverse.c
     src/main/tcl/libtommath/bn_fast_s_mp_mul_digs.c
     src/main/tcl/libtommath/bn_fast_s_mp_sqr.c
     src/main/tcl/libtommath/bn_mp_add.c
@@ -116,14 +119,14 @@ add_library(
     src/main/tcl/libtommath/bn_mp_cmp.c
     src/main/tcl/libtommath/bn_mp_cmp_d.c
     src/main/tcl/libtommath/bn_mp_cmp_mag.c
-    src/main/tcl/libtommath/bn_mp_copy.c
     src/main/tcl/libtommath/bn_mp_cnt_lsb.c
+    src/main/tcl/libtommath/bn_mp_copy.c
     src/main/tcl/libtommath/bn_mp_count_bits.c
     src/main/tcl/libtommath/bn_mp_div.c
-    src/main/tcl/libtommath/bn_mp_div_d.c
     src/main/tcl/libtommath/bn_mp_div_2.c
     src/main/tcl/libtommath/bn_mp_div_2d.c
     src/main/tcl/libtommath/bn_mp_div_3.c
+    src/main/tcl/libtommath/bn_mp_div_d.c
     src/main/tcl/libtommath/bn_mp_exch.c
     src/main/tcl/libtommath/bn_mp_expt_d.c
     src/main/tcl/libtommath/bn_mp_grow.c
@@ -163,24 +166,26 @@ add_library(
     src/main/tcl/libtommath/bn_mp_unsigned_bin_size.c
     src/main/tcl/libtommath/bn_mp_xor.c
     src/main/tcl/libtommath/bn_mp_zero.c
+    src/main/tcl/libtommath/bn_reverse.c
     src/main/tcl/libtommath/bn_s_mp_add.c
     src/main/tcl/libtommath/bn_s_mp_mul_digs.c
     src/main/tcl/libtommath/bn_s_mp_sqr.c
     src/main/tcl/libtommath/bn_s_mp_sub.c
-
+    src/main/tcl/libtommath/bncore.c
 
     src/main/tcl/unix/tclAppInit.c
     src/main/tcl/unix/tclUnixChan.c
+    src/main/tcl/unix/tclUnixCompat.c
     src/main/tcl/unix/tclUnixEvent.c
     src/main/tcl/unix/tclUnixFCmd.c
     src/main/tcl/unix/tclUnixFile.c
+    src/main/tcl/unix/tclUnixInit.c
+    src/main/tcl/unix/tclUnixNotfy.c
     src/main/tcl/unix/tclUnixPipe.c
     src/main/tcl/unix/tclUnixSock.c
     src/main/tcl/unix/tclUnixTest.c
     src/main/tcl/unix/tclUnixThrd.c
     src/main/tcl/unix/tclUnixTime.c
-    src/main/tcl/unix/tclUnixInit.c
-    src/main/tcl/unix/tclUnixCompat.c
 )
 
 ### Compile VMD ###
@@ -191,6 +196,7 @@ add_definitions(
     -DVMDNANOSHAPER  # used in DrawMolitemNanoShaper.C
     -DVMDSURF  # used in DrawMolItemSurface.C
     -DVMDPLUGIN_STATIC  # used in src/inthash.h
+    -DVMDTCL # enables TCL
 )
 
 # used in vmdmain.C; otherwise main function named vmdmain
@@ -388,8 +394,13 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/cmd_user.C
     src/main/vmd/vmd-1.9.3/src/cmd_util.C
     src/main/vmd/vmd-1.9.3/src/cmd_vmdbench.C
+    src/main/vmd/vmd-1.9.3/src/fitrms.c
     src/main/vmd/vmd-1.9.3/src/intstack.c
     src/main/vmd/vmd-1.9.3/src/macosxvmdstart.C
+    src/main/vmd/vmd-1.9.3/src/msmpot.c
+    src/main/vmd/vmd-1.9.3/src/msmpot_compute.c
+    src/main/vmd/vmd-1.9.3/src/msmpot_cubic.c
+    src/main/vmd/vmd-1.9.3/src/msmpot_setup.c
     src/main/vmd/vmd-1.9.3/src/pcre.c
     src/main/vmd/vmd-1.9.3/src/tcl_commands.C
     src/main/vmd/vmd-1.9.3/src/util_simd.C
@@ -405,3 +416,5 @@ configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/restypes.dat ${PROJECT_SOURCE_
 configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/materials.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)
 configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/colordefs.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)
 configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/atomselmacros.dat ${PROJECT_SOURCE_DIR}/src/main/assets/files/scripts/vmd/ COPYONLY)
+
+target_link_libraries(vmd tcl)

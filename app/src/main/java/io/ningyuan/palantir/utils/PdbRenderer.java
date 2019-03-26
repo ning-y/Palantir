@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
@@ -72,7 +74,11 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
                 tclScriptPath,
                 IOUtils.toString(new FileInputStream(tclScriptFiles[0]), StandardCharsets.UTF_8)));
 
-        runVmd(context, new String[]{"-dispdev", "none", "-e", tclScriptPath});
+        try {
+            runVmd(context, "-dispdev", "none", "-e", tclScriptPath);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         Log.d(TAG, String.format(
                 "pdbFileToObjFile concludes with objFile.exists(): %b",
@@ -95,18 +101,19 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         return new File[]{tclFile, objFile};
     }
 
-    private static void runVmd(Context context, String[] args) throws IOException {
+    private static void runVmd(Context context, String... args) throws IOException, InterruptedException {
         File vmd = context.getFileStreamPath("vmd");
-        String[] envVars = new String[]{String.format("VMDDIR=%s", context.getFilesDir().getCanonicalPath())};
-        String[] command = new String[args.length+1];
-        command[0] = vmd.getAbsolutePath();
-        System.arraycopy(args, 0, command, 1, args.length);
-
-        Log.d(TAG, String.format("runVmd with: %s and %s", Arrays.toString(command), Arrays.toString(envVars)));
-        Process process = Runtime.getRuntime().exec(command, envVars);
+        LinkedList<String> command = new LinkedList<>(Arrays.asList(args));
+        command.addFirst( vmd.getCanonicalPath());
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.environment().put("VMDDIR", context.getFilesDir().getCanonicalPath());
+        Process process = processBuilder.start();
+        // Log.d(TAG, String.format("runVmd with: %s and %s", Arrays.toString(command), Arrays.toString(envVars)));
 
         InputStream stdout = process.getInputStream();
         InputStream stderr = process.getErrorStream();
+
+        Log.d(TAG, "call 0");
 
         String line;
         BufferedReader outReader = new BufferedReader(new InputStreamReader(stdout));
@@ -115,11 +122,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         }
 
         Log.d(TAG, "call 1");
-
         BufferedReader errReader = new BufferedReader(new InputStreamReader(stderr));
-
-        Log.d(TAG, "call 2");
-
         while ((line = errReader.readLine()) != null) {
             Log.d(TAG, line);
         }
