@@ -16,6 +16,7 @@ import java.util.NoSuchElementException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.AsyncPOC;
+import io.ningyuan.palantir.utils.GlbRenderer;
 import io.ningyuan.palantir.utils.ObjToGlb;
 import io.ningyuan.palantir.utils.PdbRenderer;
 import io.ningyuan.palantir.utils.Toaster;
@@ -99,9 +100,10 @@ public class SceneformActivity extends AppCompatActivity {
                     /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
                        See: https://github.com/google-ar/sceneform-android-sdk/issues/477
                        So, extract an InputStream from the content URI, save it as a temp file,
-                       and pass the URL (using the file:// scheme) of that temp file instead. */
-                    glbFile = cacheFileFromContentUri(this, contentUri, ".glb");
-                    break;
+                       and pass the URL (using the file:// scheme) of that temp file instead.
+                       All these are abstracted in FileIo.cacheFileFromContentUri and GlbRenderer.*/
+                    new GlbRenderer(this, filename).execute(contentUri);
+                    return;
                 case IMPORT_MODE_OBJ:
                     /* Sceneform's does not support Wavefront OBJ files. Convert them to binary
                        glTF (*.glb) first. */

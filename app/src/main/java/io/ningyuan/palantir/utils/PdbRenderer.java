@@ -62,61 +62,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         sceneformActivity.updateModelRenderable(glbFile.getName(), glbFile);
     }
 
-    /**
-     * Copies the VMD binary from android assets into internal storage
-     */
-    private static void initVmd(Context context) {
-        Log.i(TAG, "Looking for vmd in internal storage...");
-        File vmd = context.getFileStreamPath("vmd");
-
-        if (!vmd.exists()) {
-            try {
-                Log.w(TAG, "vmd not found in internal storage. Copying from assets...");
-                InputStream assets = context.getAssets().open("arm64-v8a/vmd");
-                FileOutputStream internal = new FileOutputStream(vmd);
-                IOUtils.copy(assets, internal);
-                assets.close();
-                internal.close();
-                vmd.setExecutable(true);
-                Log.i(TAG, String.format("vmd copied from assets to internal storage at %s.", vmd.getCanonicalPath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Log.i(TAG, "Found vmd in internal storage.");
-        }
-    }
-
-    private static void initDat(Context context) {
-        Log.i(TAG, String.format("Looking for %s in internal storage...", DAT_DIR_REL_PATH));
-        // TODO: fix java.lang.IllegalArgumentException: File files/scripts/vmd/ contains a path separator
-        File datDir = new File(context.getFilesDir(), DAT_DIR_REL_PATH);
-
-        if (!datDir.exists()) {
-            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", DAT_DIR_REL_PATH));
-            datDir.mkdirs();
-        }
-
-        for (String datFileName : DAT_FILES) {
-            try {
-                Log.i(TAG, String.format("Looking for %s in internal storage...", datFileName));
-                File datFile = new File(datDir.getCanonicalPath(), datFileName);
-                if (datFile.exists()) { continue; }
-
-                Log.i(TAG, String.format("%s not found in internal storage. Copying from assets to %s...", datFileName, datFile.getCanonicalPath()));
-                InputStream streamAssets = context.getAssets().open(datFileName);
-                FileOutputStream streamInternal = new FileOutputStream(datFile);
-                IOUtils.copy(streamAssets, streamInternal);
-                streamAssets.close();
-                streamInternal.close();
-                Log.i(TAG, String.format("%s copied from assets to internal storage.", datFileName));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public static File pdbFileToObjFile(Context context, File pdbFile) throws IOException{
+    private static File pdbFileToObjFile(Context context, File pdbFile) throws IOException{
         File[] tclScriptFiles = makeTclScript(context, pdbFile);
         String tclScriptPath = tclScriptFiles[0].getCanonicalPath();
         File objFile = tclScriptFiles[1];
@@ -179,7 +125,61 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         }
     }
 
-    public static void logVmdHelp(Context context) {
+    /**
+     * Copies the VMD binary from android assets into internal storage
+     */
+    private static void initVmd(Context context) {
+        Log.i(TAG, "Looking for vmd in internal storage...");
+        File vmd = context.getFileStreamPath("vmd");
+
+        if (!vmd.exists()) {
+            try {
+                Log.w(TAG, "vmd not found in internal storage. Copying from assets...");
+                InputStream assets = context.getAssets().open("arm64-v8a/vmd");
+                FileOutputStream internal = new FileOutputStream(vmd);
+                IOUtils.copy(assets, internal);
+                assets.close();
+                internal.close();
+                vmd.setExecutable(true);
+                Log.i(TAG, String.format("vmd copied from assets to internal storage at %s.", vmd.getCanonicalPath()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.i(TAG, "Found vmd in internal storage.");
+        }
+    }
+
+    private static void initDat(Context context) {
+        Log.i(TAG, String.format("Looking for %s in internal storage...", DAT_DIR_REL_PATH));
+        // TODO: fix java.lang.IllegalArgumentException: File files/scripts/vmd/ contains a path separator
+        File datDir = new File(context.getFilesDir(), DAT_DIR_REL_PATH);
+
+        if (!datDir.exists()) {
+            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", DAT_DIR_REL_PATH));
+            datDir.mkdirs();
+        }
+
+        for (String datFileName : DAT_FILES) {
+            try {
+                Log.i(TAG, String.format("Looking for %s in internal storage...", datFileName));
+                File datFile = new File(datDir.getCanonicalPath(), datFileName);
+                if (datFile.exists()) { continue; }
+
+                Log.i(TAG, String.format("%s not found in internal storage. Copying from assets to %s...", datFileName, datFile.getCanonicalPath()));
+                InputStream streamAssets = context.getAssets().open(datFileName);
+                FileOutputStream streamInternal = new FileOutputStream(datFile);
+                IOUtils.copy(streamAssets, streamInternal);
+                streamAssets.close();
+                streamInternal.close();
+                Log.i(TAG, String.format("%s copied from assets to internal storage.", datFileName));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static void logVmdHelp(Context context) {
         Log.d(TAG, "Starting logVmdHelp");
         File vmd = context.getFileStreamPath("vmd");
         Log.d(TAG, String.format("vmd.exists(): %b", vmd.exists()));
