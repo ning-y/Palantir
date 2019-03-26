@@ -14,12 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import javax.xml.transform.Result;
-
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.AsyncPOC;
 import io.ningyuan.palantir.utils.ObjToGlb;
-import io.ningyuan.palantir.utils.PdbToObj;
+import io.ningyuan.palantir.utils.PdbRenderer;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
 
@@ -34,7 +32,7 @@ public class SceneformActivity extends AppCompatActivity {
     public static final String TAG = SceneformActivity.class.getSimpleName();
 
     private ProgressBar progressBar;
-    private SceneformFragment sceneformFragment;
+    public SceneformFragment sceneformFragment;  // TODO: make private
     private TextView modelNameTextView;
     private int importMode;
 
@@ -44,8 +42,6 @@ public class SceneformActivity extends AppCompatActivity {
     // FutureReturnValueIgnored is not valid
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        PdbToObj.initVmd(getApplicationContext());
-        PdbToObj.initDat(getApplicationContext());
 
         if (!SceneformFragment.checkIsSupportedDeviceOrFinish(this)) {
             return;
@@ -115,16 +111,9 @@ public class SceneformActivity extends AppCompatActivity {
                     glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
                     break;
                 case IMPORT_MODE_PDB:
-                    new AsyncPOC(
-                            this,
-                            Toast.makeText(this, "5s", Toast.LENGTH_SHORT),
-                            Toast.makeText(this, "10s", Toast.LENGTH_SHORT)
-                    ).execute("calling from SceneformActivity");
-                    /*
-                    File pdbFile = cacheFileFromContentUri(this, contentUri, ".pdb");
-                    File objFile = PdbToObj.pdbFileToObjFile(this, pdbFile);
-                    glbFile = ObjToGlb.objFileToGlbFile(this, objFile); */
-                    break;
+                    new PdbRenderer(this).execute(contentUri);
+                    // unlike other two modes, PdbRenderer takes care of setting modelRenderable
+                    return;
             }
 
             if (glbFile != null) {
@@ -167,5 +156,13 @@ public class SceneformActivity extends AppCompatActivity {
 
     public void updateModelNameTextView(String updateTo) {
         modelNameTextView.setText(updateTo);
+    }
+
+    public void updateModelRenderable(String name, File glbFile) {
+        sceneformFragment.setModelRenderable(name, glbFile,
+                () -> {
+                    modelNameTextView.setText(name);
+                    progressBar.setVisibility(View.INVISIBLE);
+                });
     }
 }

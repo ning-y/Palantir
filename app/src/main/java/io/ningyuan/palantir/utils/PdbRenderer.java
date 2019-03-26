@@ -1,6 +1,8 @@
 package io.ningyuan.palantir.utils;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
@@ -19,17 +21,51 @@ import java.util.Arrays;
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
 
-public class PdbToObj {
-    private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbToObj.class.getSimpleName());
+import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
+
+public class PdbRenderer extends AsyncTask<Uri, Void, File> {
+    private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbRenderer.class.getSimpleName());
     private static final String DAT_DIR_REL_PATH = "scripts/vmd/";
     private static final String[] DAT_FILES = new String[]{
             "atomselmacros.dat", "colordefs.dat", "materials.dat", "restypes.dat"
     };
+    private SceneformActivity sceneformActivity;
+
+    public PdbRenderer(SceneformActivity sceneformActivity) {
+        this.sceneformActivity = sceneformActivity;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        sceneformActivity.updateModelNameTextView("Importing .pdb file...");
+    }
+
+    @Override
+    protected File doInBackground(Uri... uri) {
+        initVmd(sceneformActivity);
+        initDat(sceneformActivity);
+
+        try {
+            File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
+            File objFile = pdbFileToObjFile(sceneformActivity, pdbFile);
+            File glbFile = ObjToGlb.objFileToGlbFile(sceneformActivity, objFile);
+            return glbFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(File glbFile) {
+        sceneformActivity.updateModelRenderable(glbFile.getName(), glbFile);
+    }
 
     /**
      * Copies the VMD binary from android assets into internal storage
      */
-    public static void initVmd(Context context) {
+    private static void initVmd(Context context) {
         Log.i(TAG, "Looking for vmd in internal storage...");
         File vmd = context.getFileStreamPath("vmd");
 
@@ -51,7 +87,7 @@ public class PdbToObj {
         }
     }
 
-    public static void initDat(Context context) {
+    private static void initDat(Context context) {
         Log.i(TAG, String.format("Looking for %s in internal storage...", DAT_DIR_REL_PATH));
         // TODO: fix java.lang.IllegalArgumentException: File files/scripts/vmd/ contains a path separator
         File datDir = new File(context.getFilesDir(), DAT_DIR_REL_PATH);
