@@ -26,6 +26,9 @@ import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 
 public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbRenderer.class.getSimpleName());
+    /* Locations of various important files in the androids assets folder, which need to be copied
+    onto the devices' internal storage (files directory) */
+    private static final String VMD_BIN_FILE = "arm64-v8a/vmd";
     // TCL needs an external file, init.tcl to work
     private static final String TCL_AUX_FILE = "init.tcl";
     // VMD needs a number of auxiliary files to work
@@ -41,35 +44,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         this.sceneformActivity = sceneformActivity;
     }
 
-    @Override
-    protected void onPreExecute() {
-        sceneformActivity.updateModelNameTextView("Importing .pdb file...");
-    }
-
-    @Override
-    protected File doInBackground(Uri... uri) {
-        try { initVmd(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initDat(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initTcl(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-
-        try {
-            File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
-            File objFile = pdbFileToObjFile(sceneformActivity, pdbFile);
-            File glbFile = ObjRenderer.objFileToGlbFile(sceneformActivity, objFile);
-            return glbFile;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(File glbFile) {
-        sceneformActivity.updateModelRenderable(glbFile.getName(), glbFile);
-    }
-
-    private static File pdbFileToObjFile(Context context, File pdbFile) throws IOException{
+    private static File pdbFileToObjFile(Context context, File pdbFile) throws IOException {
         File[] tclScriptFiles = makeTclScript(context, pdbFile);
         String tclScriptPath = tclScriptFiles[0].getCanonicalPath();
         File objFile = tclScriptFiles[1];
@@ -105,10 +80,11 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static void runVmd(Context context, String... args) throws IOException {
         File vmd = new File(context.getFilesDir().getCanonicalPath(), "vmd/vmd");
         LinkedList<String> command = new LinkedList<>(Arrays.asList(args));
-        command.addFirst( vmd.getCanonicalPath());
+        command.addFirst(vmd.getCanonicalPath());
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.environment().put("VMDDIR", context.getFilesDir().getCanonicalPath());
         processBuilder.environment().put("TCL_LIBRARY", context.getFilesDir().getCanonicalPath());
+        Log.d(TAG, "call -1");
         Process process = processBuilder.start();
         // Log.d(TAG, String.format("runVmd with: %s and %s", Arrays.toString(command), Arrays.toString(envVars)));
 
@@ -134,69 +110,50 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
      * Copies the VMD binary from android assets into internal storage
      */
     private static void initVmd(Context context) throws IOException {
-        Log.i(TAG, "Looking for vmd in internal storage...");
-        File vmdDir = new File(context.getFilesDir(), "vmd");
-
-        if (!vmdDir.exists()) {
-            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", vmdDir.getCanonicalPath()));
-            vmdDir.mkdirs();
-        }
-
-        File vmd = new File(context.getFilesDir().getCanonicalPath(), "vmd/vmd");
-
-        if (!vmd.exists()) {
-            Log.w(TAG, "vmd not found in internal storage. Copying from assets...");
-            InputStream assets = context.getAssets().open("arm64-v8a/vmd");
-            FileOutputStream internal = new FileOutputStream(vmd);
-            IOUtils.copy(assets, internal);
-            assets.close();
-            internal.close();
-            vmd.setExecutable(true);
-            Log.i(TAG, String.format("vmd copied from assets to internal storage at %s.", vmd.getCanonicalPath()));
-        } else {
-            Log.i(TAG, "Found vmd in internal storage.");
-        }
+        String targetFilePath = new File(context.getFilesDir(), "vmd/vmd").getCanonicalPath();
+        FileIo.copyAssetsFileToInternalStorage(context, VMD_BIN_FILE, targetFilePath, true);
     }
 
     private static void initDat(Context context) throws IOException {
-        Log.i(TAG, String.format("Looking for %s in internal storage...", VMD_AUX_DIR));
-        // TODO: fix java.lang.IllegalArgumentException: File files/scripts/vmd/ contains a path separator
-        File datDir = new File(context.getFilesDir(), VMD_AUX_DIR);
+        File auxDirFile = new File(context.getFilesDir(), VMD_AUX_DIR);
 
-        if (!datDir.exists()) {
-            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", VMD_AUX_DIR));
-            datDir.mkdirs();
-        }
-
-        for (String datFileName : VMD_AUX_FILES) {
-            File datFile = new File(datDir.getCanonicalPath(), datFileName);
-            Log.i(TAG, String.format("Looking for %s in internal storage...", datFile.getCanonicalPath()));
-            if (datFile.exists()) { continue; }
-
-            Log.i(TAG, String.format("%s not found in internal storage. Copying from assets to %s...", datFileName, datFile.getCanonicalPath()));
-            InputStream streamAssets = context.getAssets().open(datFileName);
-            FileOutputStream streamInternal = new FileOutputStream(datFile);
-            IOUtils.copy(streamAssets, streamInternal);
-            streamAssets.close();
-            streamInternal.close();
-            Log.i(TAG, String.format("%s copied from assets to internal storage.", datFileName));
+        for (String auxFilePath : VMD_AUX_FILES) {
+            String targetFilePath = new File(auxDirFile.getCanonicalPath(), auxFilePath)
+                    .getCanonicalPath();
+            FileIo.copyAssetsFileToInternalStorage(context, auxFilePath, targetFilePath);
         }
     }
 
     private static void initTcl(Context context) throws IOException {
-        File internalTclInit = new File(context.getFilesDir().getCanonicalPath(), "init.tcl");  // TODO temporarily replacing above only
-        Log.i(TAG, String.format("Looking for %s in internal storage...", internalTclInit.getCanonicalPath()));
-        if (internalTclInit.exists()) {
-            Log.i(TAG, String.format("%s found.", internalTclInit.getCanonicalPath()));
-            return;
+        String targetFilePath = new File(context.getFilesDir(), "init.tcl").getCanonicalPath();
+        FileIo.copyAssetsFileToInternalStorage(context, TCL_AUX_FILE, targetFilePath);
+    }
+
+    @Override
+    protected void onPreExecute() {
+        sceneformActivity.updateModelNameTextView("Importing .pdb file...");
+    }
+
+    @Override
+    protected File doInBackground(Uri... uri) {
+        try { initVmd(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initDat(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initTcl(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+
+        try {
+            File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
+            File objFile = pdbFileToObjFile(sceneformActivity, pdbFile);
+            File glbFile = ObjRenderer.objFileToGlbFile(sceneformActivity, objFile);
+            return glbFile;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        Log.i(TAG, String.format("%s not found. Creating...", internalTclInit.getCanonicalPath()));
-        InputStream streamAssets = context.getAssets().open(TCL_AUX_FILE);
-        FileOutputStream streamInternal = new FileOutputStream(internalTclInit);
-        IOUtils.copy(streamAssets, streamInternal);
-        streamAssets.close();
-        streamInternal.close();
-        Log.i(TAG, String.format("Created %s", internalTclInit.getCanonicalPath()));
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(File glbFile) {
+        sceneformActivity.updateModelRenderable(glbFile.getName(), glbFile);
     }
 }
