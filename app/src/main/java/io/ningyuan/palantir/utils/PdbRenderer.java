@@ -18,7 +18,6 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.SceneformActivity;
@@ -28,9 +27,10 @@ import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbRenderer.class.getSimpleName());
     private static final String DAT_DIR_REL_PATH = "scripts/vmd/";
-    private static final String[] DAT_FILES = new String[]{
-            "atomselmacros.dat", "colordefs.dat", "materials.dat", "restypes.dat"
-    };
+    private static final String[] DAT_FILES = {
+            "biocore.tcl", "atomselect.tcl", "atomselmacros.dat", "colordefs.dat", "graphlabels.tcl", "logfile.tcl", "hotkeys.tcl", "loadplugins.tcl", "materials.dat", "restypes.dat", "vmdinit.tcl", "vectors.tcl"};
+    private static final String TCL_INIT = "init.tcl";
+
     private SceneformActivity sceneformActivity;
 
     public PdbRenderer(SceneformActivity sceneformActivity) {
@@ -44,8 +44,9 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
 
     @Override
     protected File doInBackground(Uri... uri) {
-        initVmd(sceneformActivity);
-        initDat(sceneformActivity);
+        try { initVmd(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initDat(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initTcl(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
 
         try {
             File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
@@ -74,11 +75,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
                 tclScriptPath,
                 IOUtils.toString(new FileInputStream(tclScriptFiles[0]), StandardCharsets.UTF_8)));
 
-        try {
-            runVmd(context, "-dispdev", "none", "-e", tclScriptPath);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        runVmd(context, "-dispdev", "none", "-e", tclScriptPath);
 
         Log.d(TAG, String.format(
                 "pdbFileToObjFile concludes with objFile.exists(): %b",
@@ -101,12 +98,13 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         return new File[]{tclFile, objFile};
     }
 
-    private static void runVmd(Context context, String... args) throws IOException, InterruptedException {
-        File vmd = context.getFileStreamPath("vmd");
+    private static void runVmd(Context context, String... args) throws IOException {
+        File vmd = new File(context.getFilesDir().getCanonicalPath(), "vmd/vmd");
         LinkedList<String> command = new LinkedList<>(Arrays.asList(args));
         command.addFirst( vmd.getCanonicalPath());
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.environment().put("VMDDIR", context.getFilesDir().getCanonicalPath());
+        processBuilder.environment().put("TCL_LIBRARY", context.getFilesDir().getCanonicalPath());
         Process process = processBuilder.start();
         // Log.d(TAG, String.format("runVmd with: %s and %s", Arrays.toString(command), Arrays.toString(envVars)));
 
@@ -131,29 +129,32 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     /**
      * Copies the VMD binary from android assets into internal storage
      */
-    private static void initVmd(Context context) {
+    private static void initVmd(Context context) throws IOException {
         Log.i(TAG, "Looking for vmd in internal storage...");
-        File vmd = context.getFileStreamPath("vmd");
+        File vmdDir = new File(context.getFilesDir(), "vmd");
+
+        if (!vmdDir.exists()) {
+            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", vmdDir.getCanonicalPath()));
+            vmdDir.mkdirs();
+        }
+
+        File vmd = new File(context.getFilesDir().getCanonicalPath(), "vmd/vmd");
 
         if (!vmd.exists()) {
-            try {
-                Log.w(TAG, "vmd not found in internal storage. Copying from assets...");
-                InputStream assets = context.getAssets().open("arm64-v8a/vmd");
-                FileOutputStream internal = new FileOutputStream(vmd);
-                IOUtils.copy(assets, internal);
-                assets.close();
-                internal.close();
-                vmd.setExecutable(true);
-                Log.i(TAG, String.format("vmd copied from assets to internal storage at %s.", vmd.getCanonicalPath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Log.w(TAG, "vmd not found in internal storage. Copying from assets...");
+            InputStream assets = context.getAssets().open("arm64-v8a/vmd");
+            FileOutputStream internal = new FileOutputStream(vmd);
+            IOUtils.copy(assets, internal);
+            assets.close();
+            internal.close();
+            vmd.setExecutable(true);
+            Log.i(TAG, String.format("vmd copied from assets to internal storage at %s.", vmd.getCanonicalPath()));
         } else {
             Log.i(TAG, "Found vmd in internal storage.");
         }
     }
 
-    private static void initDat(Context context) {
+    private static void initDat(Context context) throws IOException {
         Log.i(TAG, String.format("Looking for %s in internal storage...", DAT_DIR_REL_PATH));
         // TODO: fix java.lang.IllegalArgumentException: File files/scripts/vmd/ contains a path separator
         File datDir = new File(context.getFilesDir(), DAT_DIR_REL_PATH);
@@ -164,22 +165,35 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         }
 
         for (String datFileName : DAT_FILES) {
-            try {
-                Log.i(TAG, String.format("Looking for %s in internal storage...", datFileName));
-                File datFile = new File(datDir.getCanonicalPath(), datFileName);
-                if (datFile.exists()) { continue; }
+            File datFile = new File(datDir.getCanonicalPath(), datFileName);
+            Log.i(TAG, String.format("Looking for %s in internal storage...", datFile.getCanonicalPath()));
+            if (datFile.exists()) { continue; }
 
-                Log.i(TAG, String.format("%s not found in internal storage. Copying from assets to %s...", datFileName, datFile.getCanonicalPath()));
-                InputStream streamAssets = context.getAssets().open(datFileName);
-                FileOutputStream streamInternal = new FileOutputStream(datFile);
-                IOUtils.copy(streamAssets, streamInternal);
-                streamAssets.close();
-                streamInternal.close();
-                Log.i(TAG, String.format("%s copied from assets to internal storage.", datFileName));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Log.i(TAG, String.format("%s not found in internal storage. Copying from assets to %s...", datFileName, datFile.getCanonicalPath()));
+            InputStream streamAssets = context.getAssets().open(datFileName);
+            FileOutputStream streamInternal = new FileOutputStream(datFile);
+            IOUtils.copy(streamAssets, streamInternal);
+            streamAssets.close();
+            streamInternal.close();
+            Log.i(TAG, String.format("%s copied from assets to internal storage.", datFileName));
         }
+    }
+
+    private static void initTcl(Context context) throws IOException {
+        File internalTclInit = new File(context.getFilesDir().getCanonicalPath(), "init.tcl");  // TODO temporarily replacing above only
+        Log.i(TAG, String.format("Looking for %s in internal storage...", internalTclInit.getCanonicalPath()));
+        if (internalTclInit.exists()) {
+            Log.i(TAG, String.format("%s found.", internalTclInit.getCanonicalPath()));
+            return;
+        }
+
+        Log.i(TAG, String.format("%s not found. Creating...", internalTclInit.getCanonicalPath()));
+        InputStream streamAssets = context.getAssets().open(TCL_INIT);
+        FileOutputStream streamInternal = new FileOutputStream(internalTclInit);
+        IOUtils.copy(streamAssets, streamInternal);
+        streamAssets.close();
+        streamInternal.close();
+        Log.i(TAG, String.format("Created %s", internalTclInit.getCanonicalPath()));
     }
 
     private static void logVmdHelp(Context context) {
