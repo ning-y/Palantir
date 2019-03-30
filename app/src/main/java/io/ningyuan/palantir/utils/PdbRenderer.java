@@ -26,10 +26,14 @@ import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 
 public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbRenderer.class.getSimpleName());
-    private static final String DAT_DIR_REL_PATH = "scripts/vmd/";
-    private static final String[] DAT_FILES = {
-            "biocore.tcl", "atomselect.tcl", "atomselmacros.dat", "colordefs.dat", "graphlabels.tcl", "logfile.tcl", "hotkeys.tcl", "loadplugins.tcl", "materials.dat", "restypes.dat", "vmdinit.tcl", "vectors.tcl"};
-    private static final String TCL_INIT = "init.tcl";
+    // TCL needs an external file, init.tcl to work
+    private static final String TCL_AUX_FILE = "init.tcl";
+    // VMD needs a number of auxiliary files to work
+    private static final String VMD_AUX_DIR = "scripts/vmd/";
+    private static final String[] VMD_AUX_FILES = {
+            "atomselect.tcl", "atomselmacros.dat", "biocore.tcl", "colordefs.dat",
+            "graphlabels.tcl", "hotkeys.tcl", "loadplugins.tcl", "logfile.tcl",
+            "materials.dat", "restypes.dat", "vectors.tcl", "vmdinit.tcl"};
 
     private SceneformActivity sceneformActivity;
 
@@ -155,16 +159,16 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     }
 
     private static void initDat(Context context) throws IOException {
-        Log.i(TAG, String.format("Looking for %s in internal storage...", DAT_DIR_REL_PATH));
+        Log.i(TAG, String.format("Looking for %s in internal storage...", VMD_AUX_DIR));
         // TODO: fix java.lang.IllegalArgumentException: File files/scripts/vmd/ contains a path separator
-        File datDir = new File(context.getFilesDir(), DAT_DIR_REL_PATH);
+        File datDir = new File(context.getFilesDir(), VMD_AUX_DIR);
 
         if (!datDir.exists()) {
-            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", DAT_DIR_REL_PATH));
+            Log.i(TAG, String.format("%s not found in internal storage. Running mkdirs...", VMD_AUX_DIR));
             datDir.mkdirs();
         }
 
-        for (String datFileName : DAT_FILES) {
+        for (String datFileName : VMD_AUX_FILES) {
             File datFile = new File(datDir.getCanonicalPath(), datFileName);
             Log.i(TAG, String.format("Looking for %s in internal storage...", datFile.getCanonicalPath()));
             if (datFile.exists()) { continue; }
@@ -188,38 +192,11 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         }
 
         Log.i(TAG, String.format("%s not found. Creating...", internalTclInit.getCanonicalPath()));
-        InputStream streamAssets = context.getAssets().open(TCL_INIT);
+        InputStream streamAssets = context.getAssets().open(TCL_AUX_FILE);
         FileOutputStream streamInternal = new FileOutputStream(internalTclInit);
         IOUtils.copy(streamAssets, streamInternal);
         streamAssets.close();
         streamInternal.close();
         Log.i(TAG, String.format("Created %s", internalTclInit.getCanonicalPath()));
-    }
-
-    private static void logVmdHelp(Context context) {
-        Log.d(TAG, "Starting logVmdHelp");
-        File vmd = context.getFileStreamPath("vmd");
-        Log.d(TAG, String.format("vmd.exists(): %b", vmd.exists()));
-
-        try {
-            Process process = Runtime.getRuntime().exec(new String[]{vmd.getAbsolutePath(), "--help"});
-            InputStream stdout = process.getInputStream();
-            InputStream stderr = process.getErrorStream();
-
-            String line;
-            BufferedReader outReader = new BufferedReader(new InputStreamReader(stdout));
-            while ((line = outReader.readLine()) != null) {
-                Log.d(TAG, line);
-            }
-
-            BufferedReader errReader = new BufferedReader(new InputStreamReader(stderr));
-            while ((line = errReader.readLine()) != null) {
-                Log.d(TAG, line);
-            }
-
-            Log.d(TAG, "Done with logVmdHelp");
-        } catch (IOException e) {
-            Log.e(TAG, "Something went wrong with VMD!");
-        }
     }
 }
