@@ -73,7 +73,8 @@ public class FileIo {
 
     /**
      * Copies a file from the android assets folder onto the internal (files) storage of the device.
-     * Does nothing, if the file at {@param targetPath} already exists.
+     * Does nothing, if the file at {@param targetPath} already exists or if the file at
+     * {@param assetPath} is a directory
      *
      * @param assetPath           relative path from the assets folder of the source asset file
      *                            i.e. app/src/main/assets/${assetPath}
@@ -84,6 +85,11 @@ public class FileIo {
      */
     public static File copyAssetsFileToInternalStorage(Context context, String assetPath, String targetPath, boolean shouldSetExecutable) throws IOException {
         File targetFile = new File(targetPath);
+
+        if (context.getAssets().list(assetPath).length != 0) {
+            log("%s is a directory. Recursively checking its contents.", assetPath);
+            return null;
+        }
 
         if (targetFile.exists()) {
             log("%s found.", targetFile.getCanonicalPath());

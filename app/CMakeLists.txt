@@ -413,22 +413,34 @@ add_executable(
 
 set_target_properties(vmd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI})
 
-# TCL auxiliary files
-configure_file(src/main/tcl/library/init.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/init.tcl COPYONLY)
+# TCL auxiliary files  // TODO only copy necessary files
+file(
+    COPY
+    src/main/tcl/library/
+
+    DESTINATION
+    ${PROJECT_SOURCE_DIR}/src/main/assets/tcl_aux/
+)
 
 # VMD auxiliary files
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/atomselect.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/atomselect.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/atomselmacros.dat ${PROJECT_SOURCE_DIR}/src/main/assets/atomselmacros.dat COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/biocore.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/biocore.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/colordefs.dat ${PROJECT_SOURCE_DIR}/src/main/assets/colordefs.dat COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/graphlabels.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/graphlabels.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/hotkeys.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/hotkeys.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/loadplugins.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/loadplugins.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/loadplugins.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/loadplugins.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/logfile.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/logfile.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/materials.dat ${PROJECT_SOURCE_DIR}/src/main/assets/materials.dat COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/restypes.dat ${PROJECT_SOURCE_DIR}/src/main/assets/restypes.dat COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/vectors.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/vectors.tcl COPYONLY)
-configure_file(src/main/vmd/vmd-1.9.3/scripts/vmd/vmdinit.tcl ${PROJECT_SOURCE_DIR}/src/main/assets/vmdinit.tcl COPYONLY)
+file(
+    COPY
+    src/main/vmd/vmd-1.9.3/scripts/vmd/atomselect.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/atomselmacros.dat
+    src/main/vmd/vmd-1.9.3/scripts/vmd/biocore.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/colordefs.dat
+    src/main/vmd/vmd-1.9.3/scripts/vmd/graphlabels.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/hotkeys.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/loadplugins.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/loadplugins.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/logfile.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/materials.dat
+    src/main/vmd/vmd-1.9.3/scripts/vmd/restypes.dat
+    src/main/vmd/vmd-1.9.3/scripts/vmd/vectors.tcl
+    src/main/vmd/vmd-1.9.3/scripts/vmd/vmdinit.tcl
+
+    DESTINATION
+    ${PROJECT_SOURCE_DIR}/src/main/assets/vmd_aux
+)
 
 target_link_libraries(vmd tcl)

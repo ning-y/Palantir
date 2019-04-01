@@ -1,6 +1,7 @@
 package io.ningyuan.palantir.utils;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -26,17 +27,15 @@ import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 
 public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbRenderer.class.getSimpleName());
+
     /* Locations of various important files in the androids assets folder, which need to be copied
     onto the devices' internal storage (files directory) */
-    private static final String VMD_BIN_FILE = "arm64-v8a/vmd";
-    // TCL needs an external file, init.tcl to work
-    private static final String TCL_AUX_FILE = "init.tcl";
-    // VMD needs a number of auxiliary files to work
-    private static final String VMD_AUX_DIR = "scripts/vmd/";
-    private static final String[] VMD_AUX_FILES = {
-            "atomselect.tcl", "atomselmacros.dat", "biocore.tcl", "colordefs.dat",
-            "graphlabels.tcl", "hotkeys.tcl", "loadplugins.tcl", "logfile.tcl",
-            "materials.dat", "restypes.dat", "vectors.tcl", "vmdinit.tcl"};
+    private static final String ASSET_TCL_AUX_DIR = "tcl_aux";
+    private static final String ASSET_VMD_AUX_DIR = "vmd_aux";
+    private static final String ASSET_VMD_BIN = "arm64-v8a/vmd";
+    private static final String INTERNAL_TCL_AUX_DIR = "tcl_libraries";
+    private static final String INTERNAL_VMD_AUX_DIR = "scripts/vmd/";
+    private static final String INTERNAL_VMD_BIN = "vmd/vmd";
 
     private SceneformActivity sceneformActivity;
 
@@ -78,16 +77,19 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     }
 
     private static void runVmd(Context context, String... args) throws IOException {
-        File vmd = new File(context.getFilesDir().getCanonicalPath(), "vmd/vmd");
+        // Prepare the VMD command and args
+        File vmd = new File(context.getFilesDir().getCanonicalPath(), INTERNAL_VMD_BIN);
         LinkedList<String> command = new LinkedList<>(Arrays.asList(args));
         command.addFirst(vmd.getCanonicalPath());
         ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.environment().put("VMDDIR", context.getFilesDir().getCanonicalPath());
-        processBuilder.environment().put("TCL_LIBRARY", context.getFilesDir().getCanonicalPath());
-        Log.d(TAG, "call -1");
-        Process process = processBuilder.start();
-        // Log.d(TAG, String.format("runVmd with: %s and %s", Arrays.toString(command), Arrays.toString(envVars)));
 
+        // Prepare the environment variables
+        /** {@link #INTERNAL_VMD_AUX_DIR} is set such that VMDDIR is the {@link Context#getFilesDir()} */
+        processBuilder.environment().put("VMDDIR", context.getFilesDir().getCanonicalPath());
+        String tclAuxDir = new File(context.getFilesDir(), INTERNAL_TCL_AUX_DIR).getCanonicalPath();
+        processBuilder.environment().put("TCL_LIBRARY", tclAuxDir);
+
+        Process process = processBuilder.start();
         InputStream stdout = process.getInputStream();
         InputStream stderr = process.getErrorStream();
 
@@ -110,23 +112,33 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
      * Copies the VMD binary from android assets into internal storage
      */
     private static void initVmd(Context context) throws IOException {
-        String targetFilePath = new File(context.getFilesDir(), "vmd/vmd").getCanonicalPath();
-        FileIo.copyAssetsFileToInternalStorage(context, VMD_BIN_FILE, targetFilePath, true);
+        String targetFilePath = new File(context.getFilesDir(), INTERNAL_VMD_BIN).getCanonicalPath();
+        FileIo.copyAssetsFileToInternalStorage(context, ASSET_VMD_BIN, targetFilePath, true);
     }
 
-    private static void initDat(Context context) throws IOException {
-        File auxDirFile = new File(context.getFilesDir(), VMD_AUX_DIR);
+    private static void initVmdAux(Context context) throws IOException {
+        File targetDir = new File(context.getFilesDir(), INTERNAL_VMD_AUX_DIR);
+        File assetVmdDir = new File(ASSET_VMD_AUX_DIR);
 
-        for (String auxFilePath : VMD_AUX_FILES) {
-            String targetFilePath = new File(auxDirFile.getCanonicalPath(), auxFilePath)
-                    .getCanonicalPath();
-            FileIo.copyAssetsFileToInternalStorage(context, auxFilePath, targetFilePath);
+        AssetManager assetManager = context.getAssets();
+        for (String assetName : assetManager.list(ASSET_VMD_AUX_DIR)) {
+            String targetPath = new File(targetDir.getCanonicalPath(), assetName).getCanonicalPath();
+            String assetPath = new File(assetVmdDir, assetName).getPath();
+            FileIo.copyAssetsFileToInternalStorage(context, assetPath, targetPath);
         }
     }
 
-    private static void initTcl(Context context) throws IOException {
-        String targetFilePath = new File(context.getFilesDir(), "init.tcl").getCanonicalPath();
-        FileIo.copyAssetsFileToInternalStorage(context, TCL_AUX_FILE, targetFilePath);
+    private static void initTclAux(Context context) throws IOException {
+        File targetDir = new File(context.getFilesDir(), INTERNAL_TCL_AUX_DIR);
+        File assetTclDir = new File(ASSET_TCL_AUX_DIR);
+
+        // TODO this is a bigger problem than I thought. need to copy recursively.
+        AssetManager assetManager = context.getAssets();
+        for (String assetName : assetManager.list(ASSET_TCL_AUX_DIR)) {
+            String targetPath = new File(targetDir.getCanonicalPath(), assetName).getCanonicalPath();
+            String assetPath = new File(assetTclDir, assetName).getPath();
+            FileIo.copyAssetsFileToInternalStorage(context, assetPath, targetPath);
+        }
     }
 
     @Override
@@ -137,8 +149,8 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     @Override
     protected File doInBackground(Uri... uri) {
         try { initVmd(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initDat(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initTcl(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initVmdAux(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initTclAux(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
 
         try {
             File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
