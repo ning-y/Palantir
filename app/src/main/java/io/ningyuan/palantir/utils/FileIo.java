@@ -57,58 +57,61 @@ public class FileIo {
         return cacheFile;
     }
 
-    /**
-     * Copies a file from the android assets folder onto the internal (files) storage of the device.
-     * Does nothing, if the file at {@param targetPath} already exists.
-     *
-     * @param assetPath  relative path from the assets folder of the source asset file
-     *                   i.e. app/src/main/assets/${assetPath}
-     * @param targetPath relative path from the android file dir of the target location
-     *                   i.e. /data/data/io.ningyuan.palantir/files/${internalPath}
-     * @return the resulting target {@link File}
-     */
-    public static File copyAssetsFileToInternalStorage(Context context, String assetPath, String targetPath) throws IOException {
-        return copyAssetsFileToInternalStorage(context, assetPath, targetPath, false);
+    public static File copyAssetToInternalStorage(Context context, String assetPath, String targetPath, boolean shouldSetExecutable) throws IOException {
+        log("copyAssetToInternalStorage/4: considering %s to %s\n", assetPath, targetPath);
+        return isAssetPathDir(context, assetPath)
+                ? copyAssetDirToInteralStorage(context, assetPath, targetPath)
+                : copyAssetFileToInternalStorage(context, assetPath, targetPath, shouldSetExecutable);
     }
 
-    /**
-     * Copies a file from the android assets folder onto the internal (files) storage of the device.
-     * Does nothing, if the file at {@param targetPath} already exists or if the file at
-     * {@param assetPath} is a directory
-     *
-     * @param assetPath           relative path from the assets folder of the source asset file
-     *                            i.e. app/src/main/assets/${assetPath}
-     * @param targetPath          relative path from the android file dir of the target location
-     *                            i.e. /data/data/io.ningyuan.palantir/files/${internalPath}
-     * @param shouldSetExecutable if the target file should be {@link File#setExecutable(boolean)}
-     * @return the resulting target {@link File}
-     */
-    public static File copyAssetsFileToInternalStorage(Context context, String assetPath, String targetPath, boolean shouldSetExecutable) throws IOException {
+    public static File copyAssetToInternalStorage(Context context, String assetPath, String targetPath) throws IOException {
+        log("copyAssetToInternalStorage/3: considering %s to %s\n", assetPath, targetPath);
+        return copyAssetToInternalStorage(context, assetPath, targetPath, false);
+    }
+
+
+    private static File copyAssetDirToInteralStorage(Context context, String assetPath, String targetPath) throws IOException {
+        log("copyAssetDirToInternalStorage/3: considering %s to %s\n", assetPath, targetPath);
+        for (String newAssetPath : context.getAssets().list(targetPath)) {
+            // relPath is a path to the file in relation to the asset root.
+            // each relPath differs only in the file name (or directory name)
+            // and their target copy-to's is within this given targetPath (but with targetPath as a directory)
+            String newTargetPath = new File(new File(targetPath), newAssetPath).getCanonicalPath();
+            copyAssetToInternalStorage(context, newAssetPath, newTargetPath);
+        }
+
+        return new File(targetPath);
+    }
+
+    private static File copyAssetFileToInternalStorage(Context context, String assetPath, String targetPath, boolean shouldSetExecutable) throws IOException {
+        log("copyAssetFileToInternalStorage/4: considering %s to %s\n", assetPath, targetPath);
         File targetFile = new File(targetPath);
 
-        if (context.getAssets().list(assetPath).length != 0) {
-            log("%s is a directory. Recursively checking its contents.", assetPath);
-            return null;
-        }
+        // file already exists---nothing to do
+        if (targetFile.exists()) return targetFile;
 
-        if (targetFile.exists()) {
-            log("%s found.", targetFile.getCanonicalPath());
-            return null;
-        }
-
-        log("%s not found. Preparing to create.", targetFile.getCanonicalPath());
+        log("copyAssetFileToInternalStorage/4: copying %s to %s\n", assetPath, targetPath);
+        // file does not exist; create it's containing parent dirs, then copy it over
         targetFile.getParentFile().mkdirs();
-        InputStream assetPathStream = context.getAssets().open(assetPath);
-        FileOutputStream targetFileStream = new FileOutputStream(targetFile);
-        IOUtils.copy(assetPathStream, targetFileStream);
+        InputStream inputStream = context.getAssets().open(assetPath);
+        FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
+        IOUtils.copy(inputStream, fileOutputStream);
 
-        assetPathStream.close();
-        targetFileStream.close();
+        inputStream.close();
+        fileOutputStream.close();
 
         if (shouldSetExecutable) targetFile.setExecutable(true);
 
-        log("Copied %s from assets to %s.", assetPath, targetFile.getCanonicalPath());
         return targetFile;
+    }
+
+    /**
+     * @param context
+     * @param assetPath
+     * @return if the {@param assetPath} is pointing to a directory (instead of a file)
+     */
+    private static boolean isAssetPathDir(Context context, String assetPath) throws IOException {
+        return context.getAssets().list(assetPath).length != 0;
     }
 
     public static android.net.Uri javaUriToAndroidUri(java.net.URI javaUri) {

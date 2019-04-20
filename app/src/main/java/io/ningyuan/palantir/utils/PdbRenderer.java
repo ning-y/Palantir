@@ -113,7 +113,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
      */
     private static void initVmd(Context context) throws IOException {
         String targetFilePath = new File(context.getFilesDir(), INTERNAL_VMD_BIN).getCanonicalPath();
-        FileIo.copyAssetsFileToInternalStorage(context, ASSET_VMD_BIN, targetFilePath, true);
+        FileIo.copyAssetToInternalStorage(context, ASSET_VMD_BIN, targetFilePath, true);
     }
 
     private static void initVmdAux(Context context) throws IOException {
@@ -124,7 +124,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         for (String assetName : assetManager.list(ASSET_VMD_AUX_DIR)) {
             String targetPath = new File(targetDir.getCanonicalPath(), assetName).getCanonicalPath();
             String assetPath = new File(assetVmdDir, assetName).getPath();
-            FileIo.copyAssetsFileToInternalStorage(context, assetPath, targetPath);
+            FileIo.copyAssetToInternalStorage(context, assetPath, targetPath);
         }
     }
 
@@ -137,7 +137,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         for (String assetName : assetManager.list(ASSET_TCL_AUX_DIR)) {
             String targetPath = new File(targetDir.getCanonicalPath(), assetName).getCanonicalPath();
             String assetPath = new File(assetTclDir, assetName).getPath();
-            FileIo.copyAssetsFileToInternalStorage(context, assetPath, targetPath);
+            FileIo.copyAssetToInternalStorage(context, assetPath, targetPath);
         }
     }
 
