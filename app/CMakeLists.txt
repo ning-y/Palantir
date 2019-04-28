@@ -190,6 +190,15 @@ add_library(
 
 ### Compile VMD Plugins ###
 
+include_directories(
+        src/main/vmd/plugins/molfile_plugin/src
+)
+
+add_definitions(
+    -DVMDPLUGIN_STATIC  # used in src/inthash.h
+)
+
+
 add_library(
     molfile
 
@@ -206,16 +215,12 @@ add_library(
     src/main/vmd/plugins/molfile_plugin/src/carplugin.c
     src/main/vmd/plugins/molfile_plugin/src/ccp4plugin.C
     src/main/vmd/plugins/molfile_plugin/src/corplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/cpmdlogplugin.c
     src/main/vmd/plugins/molfile_plugin/src/cpmdplugin.c
     src/main/vmd/plugins/molfile_plugin/src/crdplugin.c
     src/main/vmd/plugins/molfile_plugin/src/cubeplugin.C
     src/main/vmd/plugins/molfile_plugin/src/dcdplugin.c
     src/main/vmd/plugins/molfile_plugin/src/dlpolyplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/dmsplugin.cxx
     src/main/vmd/plugins/molfile_plugin/src/dsn6plugin.C
-    src/main/vmd/plugins/molfile_plugin/src/dtrplugin.cxx
-    src/main/vmd/plugins/molfile_plugin/src/dtrplugin.hxx
     src/main/vmd/plugins/molfile_plugin/src/dxplugin.C
     src/main/vmd/plugins/molfile_plugin/src/edmplugin.C
     src/main/vmd/plugins/molfile_plugin/src/endianswap.h
@@ -223,22 +228,14 @@ add_library(
     src/main/vmd/plugins/molfile_plugin/src/fortread.h
     src/main/vmd/plugins/molfile_plugin/src/fs4plugin.C
     src/main/vmd/plugins/molfile_plugin/src/gamessplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/gaussianplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/gaussianplugin.h
     src/main/vmd/plugins/molfile_plugin/src/graspplugin.C
     src/main/vmd/plugins/molfile_plugin/src/grdplugin.C
     src/main/vmd/plugins/molfile_plugin/src/gridplugin.C
     src/main/vmd/plugins/molfile_plugin/src/Gromacs.h
     src/main/vmd/plugins/molfile_plugin/src/gromacsplugin.C
-    src/main/vmd/plugins/molfile_plugin/src/hash.c
-    src/main/vmd/plugins/molfile_plugin/src/hash.h
-    src/main/vmd/plugins/molfile_plugin/src/hoomdplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/inthash.c
-    src/main/vmd/plugins/molfile_plugin/src/inthash.h
     src/main/vmd/plugins/molfile_plugin/src/jsplugin.c
     src/main/vmd/plugins/molfile_plugin/src/lammpsplugin.c
     src/main/vmd/plugins/molfile_plugin/src/largefiles.h
-    src/main/vmd/plugins/molfile_plugin/src/maeffplugin.cxx
     src/main/vmd/plugins/molfile_plugin/src/main.c
     src/main/vmd/plugins/molfile_plugin/src/mapplugin.C
     src/main/vmd/plugins/molfile_plugin/src/mdfplugin.C
@@ -248,7 +245,6 @@ add_library(
     src/main/vmd/plugins/molfile_plugin/src/molemeshplugin.C
     src/main/vmd/plugins/molfile_plugin/src/msmsplugin.C
     src/main/vmd/plugins/molfile_plugin/src/namdbinplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/netcdfplugin.c
     src/main/vmd/plugins/molfile_plugin/src/offplugin.C
     src/main/vmd/plugins/molfile_plugin/src/parm7plugin.C
     src/main/vmd/plugins/molfile_plugin/src/parmplugin.C
@@ -273,7 +269,6 @@ add_library(
     src/main/vmd/plugins/molfile_plugin/src/spiderplugin.C
     src/main/vmd/plugins/molfile_plugin/src/stlplugin.C
     src/main/vmd/plugins/molfile_plugin/src/tinkerplugin.c
-    src/main/vmd/plugins/molfile_plugin/src/tngplugin.C
     src/main/vmd/plugins/molfile_plugin/src/uhbdplugin.C
     src/main/vmd/plugins/molfile_plugin/src/unit_conversion.h
     src/main/vmd/plugins/molfile_plugin/src/vasp5xdatcarplugin.c
@@ -285,9 +280,7 @@ add_library(
     src/main/vmd/plugins/molfile_plugin/src/vaspxdatcarplugin.c
     src/main/vmd/plugins/molfile_plugin/src/vaspxmlplugin.c
     src/main/vmd/plugins/molfile_plugin/src/vmddir.h
-    src/main/vmd/plugins/molfile_plugin/src/vtfplugin.c
     src/main/vmd/plugins/molfile_plugin/src/vtkplugin.C
-    src/main/vmd/plugins/molfile_plugin/src/webpdbplugin.c
     src/main/vmd/plugins/molfile_plugin/src/xbgfplugin.C
     src/main/vmd/plugins/molfile_plugin/src/xsfplugin.C
     src/main/vmd/plugins/molfile_plugin/src/xyzplugin.c
