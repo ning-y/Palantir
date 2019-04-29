@@ -1,11 +1,3 @@
-include_directories(
-    src/main/vmd/plugins/molfile_plugin/src
-)
-
-add_definitions(
-    -DVMDPLUGIN_STATIC  # used in src/inthash.h
-)
-
 add_library(
     molfile
 
@@ -91,6 +83,23 @@ add_library(
     src/main/vmd/plugins/molfile_plugin/src/xbgfplugin.C
     src/main/vmd/plugins/molfile_plugin/src/xsfplugin.C
     src/main/vmd/plugins/molfile_plugin/src/xyzplugin.c
+)
+
+target_include_directories(
+    molfile
+
+    PRIVATE
+
+    src/main/vmd/plugins/include
+    src/main/vmd/plugins/molfile_plugin/src
+)
+
+target_compile_definitions(
+    molfile
+
+    PRIVATE
+
+    -DVMDPLUGIN_STATIC  # used in src/inthash.h
 )
 
 install(

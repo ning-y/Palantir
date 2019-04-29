@@ -1,27 +1,3 @@
-add_definitions(
-    -DNO_UNION_WAIT  # used in unix/tclUnixPort.h
-    -DSTDC_HEADERS  # used in tclInt.h
-    -DCFG_INSTALL_LIBDIR="${CMAKE_CACHEFILE_DIR}"  # used in generic/tclPkgConfig.c
-    -DCFG_INSTALL_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
-    -DCFG_INSTALL_SCRDIR="${CMAKE_CACHEFILE_DIR}"
-    -DCFG_INSTALL_INCDIR="${CMAKE_CACHEFILE_DIR}"
-    -DCFG_INSTALL_DOCDIR="${CMAKE_CACHEFILE_DIR}"
-    -DCFG_RUNTIME_LIBDIR="${CMAKE_CACHEFILE_DIR}"
-    -DCFG_RUNTIME_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
-    -DCFG_RUNTIME_SCRDIR="${CMAKE_CACHEFILE_DIR}"
-    -DCFG_RUNTIME_INCDIR="${CMAKE_CACHEFILE_DIR}"
-    -DCFG_RUNTIME_DOCDIR="${CMAKE_CACHEFILE_DIR}"
-    -DTCL_CFGVAL_ENCODING="iso8859-1"
-    -DTCL_LIBRARY="${CMAKE_CACHEFILE_DIR}"  # used in unix/tclUnixInit.c
-    -DTCL_PACKAGE_PATH="${CMAKE_CACHEFILE_DIR}"
-)
-
-include_directories(
-    src/main/tcl/generic
-    src/main/tcl/libtommath
-    src/main/tcl/unix
-)
-
 add_library(
     tcl
 
@@ -182,6 +158,38 @@ add_library(
     src/main/tcl/unix/tclUnixTest.c
     src/main/tcl/unix/tclUnixThrd.c
     src/main/tcl/unix/tclUnixTime.c
+)
+
+target_include_directories(
+    tcl
+
+    PRIVATE
+
+    src/main/tcl/generic
+    src/main/tcl/libtommath
+    src/main/tcl/unix
+)
+
+target_compile_definitions(
+    tcl
+
+    PRIVATE
+
+    -DNO_UNION_WAIT  # used in unix/tclUnixPort.h
+    -DSTDC_HEADERS  # used in tclInt.h
+    -DCFG_INSTALL_LIBDIR="${CMAKE_CACHEFILE_DIR}"  # used in generic/tclPkgConfig.c
+    -DCFG_INSTALL_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
+    -DCFG_INSTALL_SCRDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_INSTALL_INCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_INSTALL_DOCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_LIBDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_BINDIR="${CMAKE_CURRENT_BINARY_DIR}"
+    -DCFG_RUNTIME_SCRDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_INCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DCFG_RUNTIME_DOCDIR="${CMAKE_CACHEFILE_DIR}"
+    -DTCL_CFGVAL_ENCODING="iso8859-1"
+    -DTCL_LIBRARY="${CMAKE_CACHEFILE_DIR}"  # used in unix/tclUnixInit.c
+    -DTCL_PACKAGE_PATH="${CMAKE_CACHEFILE_DIR}"
 )
 
 # TCL auxiliary files  // TODO only copy necessary files

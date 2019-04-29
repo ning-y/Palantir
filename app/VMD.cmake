@@ -1,22 +1,3 @@
-include_directories(
-    src/main/vmd/plugins/include
-    src/main/vmd/vmd-1.9.3/src
-)
-
-add_definitions(
-    -DARCH_ANDROIDARMV7A  # used in AtomParser.C
-    -DVMDMSMS  # used in DrawMolItemMSMS.C
-    -DVMDNANOSHAPER  # used in DrawMolitemNanoShaper.C
-    -DVMDSURF  # used in DrawMolItemSurface.C
-    -DVMDPLUGIN_STATIC  # used in src/inthash.h
-    -DVMDTCL # enables TCL
-)
-
-# used in vmdmain.C; otherwise main function named vmdmain
-set_source_files_properties(src/main/vmd/vmd-1.9.3/src/vmdmain.C PROPERTIES COMPILE_FLAGS -UANDROID)
-# otherwise, undefined reference to log_android
-set_source_files_properties(src/main/vmd/vmd-1.9.3/src/Inform.C PROPERTIES COMPILE_FLAGS -UANDROID)
-
 add_executable(
     vmd
 
@@ -217,6 +198,37 @@ add_executable(
     src/main/vmd/vmd-1.9.3/src/vmdmain.C
     src/main/vmd/vmd-1.9.3/src/vmdsock.c
 )
+
+target_include_directories(
+    vmd
+
+    PRIVATE
+
+    src/main/vmd/plugins/include
+    src/main/vmd/vmd-1.9.3/src
+    src/main/tcl/generic
+    src/main/tcl/libtommath
+    src/main/tcl/unix
+)
+
+target_compile_definitions(
+    vmd
+
+    PRIVATE
+
+    -DARCH_ANDROIDARMV7A  # used in AtomParser.C
+    -DVMDMSMS             # used in DrawMolItemMSMS.C
+    -DVMDNANOSHAPER       # used in DrawMolitemNanoShaper.C
+    -DVMDSURF             # used in DrawMolItemSurface.C
+    -DVMDPLUGIN_STATIC    # used in src/inthash.h
+    -DVMDTCL              # enables TCL
+)
+
+# used in vmdmain.C; otherwise main function named vmdmain
+set_source_files_properties(src/main/vmd/vmd-1.9.3/src/vmdmain.C PROPERTIES COMPILE_FLAGS -UANDROID)
+# otherwise, undefined reference to log_android
+set_source_files_properties(src/main/vmd/vmd-1.9.3/src/Inform.C PROPERTIES COMPILE_FLAGS -UANDROID)
+
 
 set_target_properties(vmd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI})
 
