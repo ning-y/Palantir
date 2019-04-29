@@ -28,7 +28,8 @@ android {
         }
         externalNativeBuild {
             cmake {
-                targets 'tcl', 'vmd', 'molfile'
+                targets 'tcl', 'vmd', 'xsfplugin', 'spiderplugin', 'offplugin', 'xbgfplugin', 'tinkerplugin', 'fs4plugin', 'xyzplugin', 'carplugin', 'cpmdplugin', 'vasp5xdatcarplugin', 'molemeshplugin', 'pltplugin', 'edmplugin', 'pqrplugin', 'psfplugin', 'vaspxmlplugin', 'stlplugin', 'vaspposcarplugin', 'mol2plugin', 'moldenplugin', 'mdfplugin', 'parmplugin', 'ccp4plugin', 'crdplugin', 'dcdplugin', 'dlpolyplugin', 'pbeqplugin', 'gamessplugin', 'binposplugin', 'basissetplugin', 'phiplugin', 'parm7plugin', 'grdplugin', 'jsplugin', 'babelplugin', 'dsn6plugin', 'rst7plugin', 'uhbdplugin', 'situsplugin', 'cubeplugin', 'brixplugin', 'raster3dplugin', 'vaspparchgplugin', 'corplugin', 'namdbinplugin', 'gromacsplugin', 'msmsplugin', 'graspplugin', 'gridplugin', 'dxplugin', 'pdbplugin', 'lammpsplugin', 'biomoccaplugin', 'mapplugin', 'bgfplugin', 'abinitplugin', 'avsplugin', 'vaspchgcarplugin', 'vaspoutcarplugin', 'vaspxdatcarplugin'
+
             }
         }
     }
