@@ -89,5 +89,23 @@ install(
         vaspparchgplugin vaspposcarplugin vaspxdatcarplugin
         vaspxmlplugin xbgfplugin xsfplugin
 
-    LIBRARY DESTINATION src/main/assets/molfile_plugin
+    LIBRARY DESTINATION lib
+) # TODO DESTINATION lib appears to not do anything, but CMake will not
+  # run without it. Figure out why, and remove the redundancy.
+
+set_target_properties(
+    abinitplugin avsplugin babelplugin basissetplugin bgfplugin
+    binposplugin biomoccaplugin brixplugin carplugin ccp4plugin
+    corplugin cpmdplugin crdplugin cubeplugin dcdplugin dlpolyplugin
+    dsn6plugin dxplugin edmplugin fs4plugin gamessplugin graspplugin
+    grdplugin gridplugin gromacsplugin jsplugin lammpsplugin mapplugin
+    mdfplugin mol2plugin moldenplugin molemeshplugin msmsplugin
+    namdbinplugin offplugin parm7plugin parmplugin pbeqplugin pdbplugin
+    phiplugin pltplugin pqrplugin psfplugin raster3dplugin rst7plugin
+    situsplugin spiderplugin stlplugin tinkerplugin uhbdplugin
+    vasp5xdatcarplugin vaspchgcarplugin vaspoutcarplugin
+    vaspparchgplugin vaspposcarplugin vaspxdatcarplugin
+    vaspxmlplugin xbgfplugin xsfplugin
+
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI}/molfile_plugins
 )

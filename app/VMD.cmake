@@ -229,7 +229,6 @@ set_source_files_properties(src/main/vmd/vmd-1.9.3/src/vmdmain.C PROPERTIES COMP
 # otherwise, undefined reference to log_android
 set_source_files_properties(src/main/vmd/vmd-1.9.3/src/Inform.C PROPERTIES COMPILE_FLAGS -UANDROID)
 
-
 set_target_properties(vmd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI})
 
 # VMD auxiliary files
