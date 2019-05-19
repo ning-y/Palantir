@@ -72,11 +72,12 @@ public class FileIo {
 
     private static File copyAssetDirToInteralStorage(Context context, String assetPath, String targetPath) throws IOException {
         log("copyAssetDirToInternalStorage/3: considering %s to %s\n", assetPath, targetPath);
-        for (String newAssetPath : context.getAssets().list(targetPath)) {
+        for (String relAssetPath : context.getAssets().list(assetPath)) {
             // relPath is a path to the file in relation to the asset root.
             // each relPath differs only in the file name (or directory name)
             // and their target copy-to's is within this given targetPath (but with targetPath as a directory)
-            String newTargetPath = new File(new File(targetPath), newAssetPath).getCanonicalPath();
+            String newTargetPath = new File(new File(targetPath), relAssetPath).getCanonicalPath();
+            String newAssetPath = new File(new File(assetPath), relAssetPath).getPath();
             copyAssetToInternalStorage(context, newAssetPath, newTargetPath);
         }
 
@@ -111,6 +112,7 @@ public class FileIo {
      * @return if the {@param assetPath} is pointing to a directory (instead of a file)
      */
     private static boolean isAssetPathDir(Context context, String assetPath) throws IOException {
+        log("isAssetPathDir/2: %s gives %s", assetPath, String.valueOf(context.getAssets().list(assetPath).length != 0));
         return context.getAssets().list(assetPath).length != 0;
     }
 
