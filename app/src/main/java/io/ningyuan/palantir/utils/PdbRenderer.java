@@ -30,11 +30,13 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
 
     /* Locations of various important files in the androids assets folder, which need to be copied
     onto the devices' internal storage (files directory) */
+    private static final String ASSET_MOLFILE_DIR = "arm64-v8a/molfile_plugins";
     private static final String ASSET_TCL_AUX_DIR = "tcl_aux";
     private static final String ASSET_VMD_AUX_DIR = "vmd_aux";
     private static final String ASSET_VMD_BIN = "arm64-v8a/vmd";
+    private static final String INTERNAL_MOLFILE_DIR = "plugins/LINUXAMD64/molfile";
     private static final String INTERNAL_TCL_AUX_DIR = "tcl_libraries";
-    private static final String INTERNAL_VMD_AUX_DIR = "scripts/vmd/";
+    private static final String INTERNAL_VMD_AUX_DIR = "scripts/vmd";
     private static final String INTERNAL_VMD_BIN = "vmd/vmd";
 
     private SceneformActivity sceneformActivity;
@@ -132,11 +134,22 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         File targetDir = new File(context.getFilesDir(), INTERNAL_TCL_AUX_DIR);
         File assetTclDir = new File(ASSET_TCL_AUX_DIR);
 
-        // TODO this is a bigger problem than I thought. need to copy recursively.
         AssetManager assetManager = context.getAssets();
         for (String assetName : assetManager.list(ASSET_TCL_AUX_DIR)) {
             String targetPath = new File(targetDir.getCanonicalPath(), assetName).getCanonicalPath();
             String assetPath = new File(assetTclDir, assetName).getPath();
+            FileIo.copyAssetToInternalStorage(context, assetPath, targetPath);
+        }
+    }
+
+    private static void initMolfilePlugins(Context context) throws IOException {
+        File targetDir = new File(context.getFilesDir(), INTERNAL_MOLFILE_DIR);
+        File assetMolfileDir = new File(ASSET_MOLFILE_DIR);
+
+        AssetManager assetManager = context.getAssets();
+        for (String assetName : assetManager.list(ASSET_MOLFILE_DIR)) {
+            String targetPath = new File(targetDir.getCanonicalPath(), assetName).getCanonicalPath();
+            String assetPath = new File(assetMolfileDir, assetName).getPath();
             FileIo.copyAssetToInternalStorage(context, assetPath, targetPath);
         }
     }
@@ -151,6 +164,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         try { initVmd(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initVmdAux(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initTclAux(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initMolfilePlugins(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
 
         try {
             File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
