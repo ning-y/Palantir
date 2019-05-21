@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.ar.sceneform.plugin'
+apply plugin: 'org.ajoberstar.grgit'
 
 android {
     compileSdkVersion 27
@@ -24,6 +26,12 @@ android {
              */
             abiFilters 'arm64-v8a', 'x86'
         }
+        externalNativeBuild {
+            cmake {
+                targets 'tcl', 'vmd', 'xsfplugin', 'spiderplugin', 'offplugin', 'xbgfplugin', 'tinkerplugin', 'fs4plugin', 'xyzplugin', 'carplugin', 'cpmdplugin', 'vasp5xdatcarplugin', 'molemeshplugin', 'pltplugin', 'edmplugin', 'pqrplugin', 'psfplugin', 'vaspxmlplugin', 'stlplugin', 'vaspposcarplugin', 'mol2plugin', 'moldenplugin', 'mdfplugin', 'parmplugin', 'ccp4plugin', 'crdplugin', 'dcdplugin', 'dlpolyplugin', 'pbeqplugin', 'gamessplugin', 'binposplugin', 'basissetplugin', 'phiplugin', 'parm7plugin', 'grdplugin', 'jsplugin', 'babelplugin', 'dsn6plugin', 'rst7plugin', 'uhbdplugin', 'situsplugin', 'cubeplugin', 'brixplugin', 'raster3dplugin', 'vaspparchgplugin', 'corplugin', 'namdbinplugin', 'gromacsplugin', 'msmsplugin', 'graspplugin', 'gridplugin', 'dxplugin', 'pdbplugin', 'lammpsplugin', 'biomoccaplugin', 'mapplugin', 'bgfplugin', 'abinitplugin', 'avsplugin', 'vaspchgcarplugin', 'vaspoutcarplugin', 'vaspxdatcarplugin'
+
+            }
+        }
     }
     // Sceneform libraries use language constructs from Java 8.
     // Add these compile options if targeting minSdkVersion < 26.
@@ -38,10 +46,35 @@ android {
         }
     }
     lintOptions {
-        abortOnError true
+        abortOnError false
         warningsAsErrors true
     }
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
 }
+
+task fetchVmdSrc {
+    description = 'Clone VMD source into src/main/vmd'
+    onlyIf { !(new File('./app/src/main/vmd').exists()) }
+    doLast {
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/vmd", uri: "https://github.com/ningyuansg/vmd.git")
+        delete "./app/src/main/vmd/.git"
+    }
+}
+preBuild.dependsOn fetchVmdSrc  // fetch VMD before building artifacts
+
+task fetchTclSrc {
+    description = 'Clone TCL source into src/main/tcl'
+    onlyIf { !(new File('./app/src/main/tcl').exists()) }
+    doLast {
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/tcl", uri: "https://github.com/ningyuansg/tcl8.5.19.git")
+        delete "./app/src/main/tcl/.git"
+    }
+}
+preBuild.dependsOn fetchTclSrc  // fetch VMD before building artifacts
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -51,5 +84,3 @@ dependencies {
     implementation 'commons-io:commons-io:2.6'
     implementation 'de.javagl:jgltf-obj:2.0.0'
 }
-
-apply plugin: 'com.google.ar.sceneform.plugin'

@@ -10,25 +10,25 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.NoSuchElementException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
-import io.ningyuan.palantir.utils.ObjToGlb;
+import io.ningyuan.palantir.utils.FileIo;
+import io.ningyuan.palantir.utils.GlbRenderer;
+import io.ningyuan.palantir.utils.ObjRenderer;
+import io.ningyuan.palantir.utils.PdbRenderer;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
 
-import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
-import static io.ningyuan.palantir.utils.FileIo.getFilenameFromContentUri;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
+import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_PDB;
 
 public class SceneformActivity extends AppCompatActivity {
     public static final String TAG = SceneformActivity.class.getSimpleName();
 
     private ProgressBar progressBar;
-    private SceneformFragment sceneformFragment;
+    public SceneformFragment sceneformFragment;  // TODO: make private
     private TextView modelNameTextView;
     private int importMode;
 
@@ -52,6 +52,8 @@ public class SceneformActivity extends AppCompatActivity {
         importGlbButton.setImportModeToTrigger(IMPORT_MODE_GLB);
         final ImportButton importObjButton = findViewById(R.id.import_obj_button);
         importObjButton.setImportModeToTrigger(IMPORT_MODE_OBJ);
+        final ImportButton importPdbButton = findViewById(R.id.import_pdb_button);
+        importPdbButton.setImportModeToTrigger(IMPORT_MODE_PDB);
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
@@ -70,6 +72,11 @@ public class SceneformActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
+        Log.d(TAG, String.format(
+                "onActivityResult called with requestCode %d; resultCode %d; importMode %d",
+                requestCode, resultCode, importMode
+        ));
+
         if (requestCode != IMPORT_FILE_RESULT || resultCode != RESULT_OK) {
             return;
         }
@@ -79,7 +86,7 @@ public class SceneformActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         Uri contentUri = resultIntent.getData();
-        String filename = getFilenameFromContentUri(this, contentUri);
+        String filename = FileIo.getFilenameFromContentUri(this, contentUri);
         File glbFile = null;
 
         try {
@@ -88,17 +95,17 @@ public class SceneformActivity extends AppCompatActivity {
                     /* Sceneform's RenderableSource.builder cannot yet handle content URIs.
                        See: https://github.com/google-ar/sceneform-android-sdk/issues/477
                        So, extract an InputStream from the content URI, save it as a temp file,
-                       and pass the URL (using the file:// scheme) of that temp file instead. */
-                    glbFile = cacheFileFromContentUri(this, contentUri, ".glb");
-                    break;
+                       and pass the URL (using the file:// scheme) of that temp file instead.
+                       All these are abstracted in FileIo.cacheFileFromContentUri and GlbRenderer.*/
+                    new GlbRenderer(this, filename).execute(contentUri);
+                    return;
                 case IMPORT_MODE_OBJ:
-                    /* Sceneform's does not support Wavefront OBJ files. Convert them to binary
-                       glTF (*.glb) first. */
-                    File cacheFile = cacheFileFromContentUri(this, contentUri, ".obj");
-                    /* ObjToGlb.objFileToGlbFile can throw IllegalArgumentException or
-                       NoSuchElementException for non-obj files */
-                    glbFile = ObjToGlb.objFileToGlbFile(this, cacheFile);
-                    break;
+                    new ObjRenderer(this, filename).execute(contentUri);
+                    return;
+                case IMPORT_MODE_PDB:
+                    new PdbRenderer(this).execute(contentUri);
+                    // unlike other two modes, PdbRenderer takes care of setting modelRenderable
+                    return;
             }
 
             if (glbFile != null) {
@@ -113,7 +120,7 @@ public class SceneformActivity extends AppCompatActivity {
                 throw new IllegalStateException();
             }
 
-        } catch (IOException | IllegalStateException | IllegalArgumentException | NoSuchElementException e) {
+        } catch (IllegalStateException e) {
             Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
             Toaster.showToastLong(this, R.string.error_import_failed_io);
             modelNameTextView.setText(lastModelName);
@@ -137,5 +144,17 @@ public class SceneformActivity extends AppCompatActivity {
      */
     public void setImportMode(int importMode) {
         this.importMode = importMode;
+    }
+
+    public void updateModelNameTextView(String updateTo) {
+        modelNameTextView.setText(updateTo);
+    }
+
+    public void updateModelRenderable(String name, File glbFile) {
+        sceneformFragment.setModelRenderable(name, glbFile,
+                () -> {
+                    modelNameTextView.setText(name);
+                    progressBar.setVisibility(View.INVISIBLE);
+                });
     }
 }

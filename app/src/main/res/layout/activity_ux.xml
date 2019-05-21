@@ -43,6 +43,15 @@
             android:src="@drawable/ic_file_upload_black_24dp"
             fab:fab_title="Import Wavefront OBJ (*.obj)" />
 
+        <io.ningyuan.palantir.views.ImportButton
+            android:id="@+id/import_pdb_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_file_upload_black_24dp"
+            fab:fab_title="Import Protein Databank file (*.pdb)"
+            />
+
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
     <ProgressBar
