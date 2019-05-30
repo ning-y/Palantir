@@ -18,6 +18,7 @@ import io.ningyuan.palantir.utils.ObjRenderer;
 import io.ningyuan.palantir.utils.PdbRenderer;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
+import io.ningyuan.palantir.views.SearchButton;
 
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
@@ -54,6 +55,7 @@ public class SceneformActivity extends AppCompatActivity {
         importObjButton.setImportModeToTrigger(IMPORT_MODE_OBJ);
         final ImportButton importPdbButton = findViewById(R.id.import_pdb_button);
         importPdbButton.setImportModeToTrigger(IMPORT_MODE_PDB);
+        final SearchButton searchRcsbButton = findViewById(R.id.import_rcsb_button);
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);

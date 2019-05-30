@@ -52,6 +52,15 @@
             fab:fab_title="Import Protein Databank file (*.pdb)"
             />
 
+        <io.ningyuan.palantir.views.SearchButton
+            android:id="@+id/import_rcsb_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/ic_file_upload_black_24dp"
+            fab:fab_title="RCSB PDB Search"
+        />
+
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
     <ProgressBar
