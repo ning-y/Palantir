@@ -8,6 +8,7 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.utils.PdbSearcher;
 
 public class SearchButton extends FloatingActionButton {
     private SceneformActivity sceneformActivity;
@@ -27,7 +28,8 @@ public class SearchButton extends FloatingActionButton {
     public class OnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            sceneformActivity.updateModelNameTextView("RCSB Search is not yet implemented.");
+            String pdbId = "4OJ2";
+            new PdbSearcher(sceneformActivity).execute(pdbId);
             ((FloatingActionsMenu) getParent()).collapse();
         }
     }
