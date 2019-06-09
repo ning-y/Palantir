@@ -107,5 +107,6 @@ set_target_properties(
     vaspparchgplugin vaspposcarplugin vaspxdatcarplugin
     vaspxmlplugin xbgfplugin xsfplugin
 
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI}/molfile_plugins
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY
+    ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI}/molfile_plugins
 )

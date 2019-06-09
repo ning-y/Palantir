@@ -1,0 +1,62 @@
+add_executable(
+    stride
+
+    src/main/stride/area.c
+    src/main/stride/asngener.c
+    src/main/stride/chk_atom.c
+    src/main/stride/chk_res.c
+    src/main/stride/chkchain.c
+    src/main/stride/command.c
+    src/main/stride/contact_map.c
+    src/main/stride/contact_order.c
+    src/main/stride/die.c
+    src/main/stride/dssp.c
+    src/main/stride/elem.c
+    src/main/stride/escape.c
+    src/main/stride/filename.c
+    src/main/stride/fillasn.c
+    src/main/stride/geometry.c
+    src/main/stride/hbenergy.c
+    src/main/stride/helix.c
+    src/main/stride/hydrbond.c
+    src/main/stride/initchn.c
+    src/main/stride/measure.c
+    src/main/stride/memory.c
+    src/main/stride/mergepat.c
+    src/main/stride/molscr.c
+    src/main/stride/nsc.c
+    src/main/stride/one2thr.c
+    src/main/stride/outseq.c
+    src/main/stride/p_atom.c
+    src/main/stride/p_compnd.c
+    src/main/stride/p_endmdl.c
+    src/main/stride/p_expdta.c
+    src/main/stride/p_helix.c
+    src/main/stride/p_jrnl.c
+    src/main/stride/p_model.c
+    src/main/stride/p_rem.c
+    src/main/stride/p_sheet.c
+    src/main/stride/p_ssbond.c
+    src/main/stride/p_turn.c
+    src/main/stride/pdbasn.c
+    src/main/stride/phipsi.c
+    src/main/stride/place_h.c
+    src/main/stride/rdmap.c
+    src/main/stride/rdpdb.c
+    src/main/stride/report.c
+    src/main/stride/sheet.c
+    src/main/stride/splitstr.c
+    src/main/stride/ssbond.c
+    src/main/stride/stred.c
+    src/main/stride/stride.c
+    src/main/stride/strutil.c
+    src/main/stride/thr2one.c
+    src/main/stride/tolostr.c
+    src/main/stride/turn.c
+)
+
+set_target_properties(
+    stride
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+    ${PROJECT_SOURCE_DIR}/src/main/assets/${ANDROID_ABI}
+)

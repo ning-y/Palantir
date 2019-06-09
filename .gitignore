@@ -12,6 +12,7 @@ app/src/main/assets/vmd_aux
 # # User configuration.
 local.properties
 
-# # VMD, TCL source
+# # VMD, TCL, STRIDE source
 app/src/main/vmd
 app/src/main/tcl
+app/src/main/stride

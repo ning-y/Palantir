@@ -28,7 +28,7 @@ android {
         }
         externalNativeBuild {
             cmake {
-                targets 'tcl', 'vmd', 'xsfplugin', 'spiderplugin', 'offplugin', 'xbgfplugin', 'tinkerplugin', 'fs4plugin', 'xyzplugin', 'carplugin', 'cpmdplugin', 'vasp5xdatcarplugin', 'molemeshplugin', 'pltplugin', 'edmplugin', 'pqrplugin', 'psfplugin', 'vaspxmlplugin', 'stlplugin', 'vaspposcarplugin', 'mol2plugin', 'moldenplugin', 'mdfplugin', 'parmplugin', 'ccp4plugin', 'crdplugin', 'dcdplugin', 'dlpolyplugin', 'pbeqplugin', 'gamessplugin', 'binposplugin', 'basissetplugin', 'phiplugin', 'parm7plugin', 'grdplugin', 'jsplugin', 'babelplugin', 'dsn6plugin', 'rst7plugin', 'uhbdplugin', 'situsplugin', 'cubeplugin', 'brixplugin', 'raster3dplugin', 'vaspparchgplugin', 'corplugin', 'namdbinplugin', 'gromacsplugin', 'msmsplugin', 'graspplugin', 'gridplugin', 'dxplugin', 'pdbplugin', 'lammpsplugin', 'biomoccaplugin', 'mapplugin', 'bgfplugin', 'abinitplugin', 'avsplugin', 'vaspchgcarplugin', 'vaspoutcarplugin', 'vaspxdatcarplugin'
+                targets 'tcl', 'vmd', 'stride', 'xsfplugin', 'spiderplugin', 'offplugin', 'xbgfplugin', 'tinkerplugin', 'fs4plugin', 'xyzplugin', 'carplugin', 'cpmdplugin', 'vasp5xdatcarplugin', 'molemeshplugin', 'pltplugin', 'edmplugin', 'pqrplugin', 'psfplugin', 'vaspxmlplugin', 'stlplugin', 'vaspposcarplugin', 'mol2plugin', 'moldenplugin', 'mdfplugin', 'parmplugin', 'ccp4plugin', 'crdplugin', 'dcdplugin', 'dlpolyplugin', 'pbeqplugin', 'gamessplugin', 'binposplugin', 'basissetplugin', 'phiplugin', 'parm7plugin', 'grdplugin', 'jsplugin', 'babelplugin', 'dsn6plugin', 'rst7plugin', 'uhbdplugin', 'situsplugin', 'cubeplugin', 'brixplugin', 'raster3dplugin', 'vaspparchgplugin', 'corplugin', 'namdbinplugin', 'gromacsplugin', 'msmsplugin', 'graspplugin', 'gridplugin', 'dxplugin', 'pdbplugin', 'lammpsplugin', 'biomoccaplugin', 'mapplugin', 'bgfplugin', 'abinitplugin', 'avsplugin', 'vaspchgcarplugin', 'vaspoutcarplugin', 'vaspxdatcarplugin'
 
             }
         }
@@ -60,7 +60,7 @@ task fetchVmdSrc {
     description = 'Clone VMD source into src/main/vmd'
     onlyIf { !(new File('./app/src/main/vmd').exists()) }
     doLast {
-        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/vmd", uri: "https://github.com/ningyuansg/vmd.git")
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/vmd", uri: "https://github.com/palantir-mirrors/vmd.git")
         delete "./app/src/main/vmd/.git"
     }
 }
@@ -70,11 +70,21 @@ task fetchTclSrc {
     description = 'Clone TCL source into src/main/tcl'
     onlyIf { !(new File('./app/src/main/tcl').exists()) }
     doLast {
-        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/tcl", uri: "https://github.com/ningyuansg/tcl8.5.19.git")
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/tcl", uri: "https://github.com/palantir-mirrors/tcl8.5.19.git")
         delete "./app/src/main/tcl/.git"
     }
 }
 preBuild.dependsOn fetchTclSrc  // fetch VMD before building artifacts
+
+task fetchStrideSrc {
+    description = 'Clone STRIDE source into src/main/stride'
+    onlyIf { !(new File('./app/src/main/stride').exists())}
+    doLast {
+        org.ajoberstar.grgit.Grgit.clone(dir: "./app/src/main/stride", uri: "https://github.com/palantir-mirrors/stride.git")
+        delete "./app/src/main/stride/.git"
+    }
+}
+preBuild.dependsOn fetchStrideSrc
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
