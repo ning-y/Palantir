@@ -31,10 +31,13 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     /* Locations of various important files in the androids assets folder, which need to be copied
     onto the devices' internal storage (files directory) */
     private static final String ASSET_MOLFILE_DIR = "arm64-v8a/molfile_plugins";
+    private static final String ASSET_STRIDE_BIN = "arm64-v8a/stride";
     private static final String ASSET_TCL_AUX_DIR = "tcl_aux";
     private static final String ASSET_VMD_AUX_DIR = "vmd_aux";
     private static final String ASSET_VMD_BIN = "arm64-v8a/vmd";
     private static final String INTERNAL_MOLFILE_DIR = "plugins/LINUXAMD64/molfile";
+    private static final String INTERNAL_STRIDE_BIN = "vmd/stride";
+    private static final String INTERNAL_STRIDE_BIN_DIR = "vmd";
     private static final String INTERNAL_TCL_AUX_DIR = "tcl_libraries";
     private static final String INTERNAL_VMD_AUX_DIR = "scripts/vmd";
     private static final String INTERNAL_VMD_BIN = "vmd/vmd";
@@ -79,6 +82,20 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     }
 
     private static void runVmd(Context context, String... args) throws IOException {
+        /* DEBUG STRIDE*/
+        File stride = new File(context.getFilesDir().getCanonicalPath(), INTERNAL_STRIDE_BIN);
+        LinkedList<String> cmd = new LinkedList<>();
+        cmd.addFirst(stride.getCanonicalPath());
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        Process p = pb.start();
+        InputStream is = p.getInputStream();
+        InputStream is2 = p.getErrorStream();
+        String l;
+        BufferedReader or = new BufferedReader(new InputStreamReader(is));
+        while ((l = or.readLine()) != null) { Log.d(TAG, l); }
+        BufferedReader er = new BufferedReader(new InputStreamReader(is2));
+        while ((l = er.readLine()) != null) { Log.d(TAG, l); }
+
         // Prepare the VMD command and args
         File vmd = new File(context.getFilesDir().getCanonicalPath(), INTERNAL_VMD_BIN);
         LinkedList<String> command = new LinkedList<>(Arrays.asList(args));
@@ -90,6 +107,14 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         processBuilder.environment().put("VMDDIR", context.getFilesDir().getCanonicalPath());
         String tclAuxDir = new File(context.getFilesDir(), INTERNAL_TCL_AUX_DIR).getCanonicalPath();
         processBuilder.environment().put("TCL_LIBRARY", tclAuxDir);
+        String strideBinDir = new File(context.getFilesDir(), INTERNAL_STRIDE_BIN).getCanonicalPath();
+        processBuilder.environment().put("STRIDE_BIN", strideBinDir);
+        File strideTmpIn = File.createTempFile("stride", null, context.getCacheDir());
+        strideTmpIn.delete();
+        processBuilder.environment().put("STRIDE_TMP_IN", strideTmpIn.getCanonicalPath());
+        File strideTmpOut = File.createTempFile("stride", null, context.getCacheDir());
+        strideTmpOut.delete();
+        processBuilder.environment().put("STRIDE_TMP_OUT", strideTmpOut.getCanonicalPath());
 
         Process process = processBuilder.start();
         InputStream stdout = process.getInputStream();
@@ -113,6 +138,11 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static void initVmd(Context context) throws IOException {
         String targetFilePath = new File(context.getFilesDir(), INTERNAL_VMD_BIN).getCanonicalPath();
         FileIo.copyAssetToInternalStorage(context, ASSET_VMD_BIN, targetFilePath, true);
+    }
+
+    private static void initStride(Context context) throws IOException {
+        String targetFilePath = new File(context.getFilesDir(), INTERNAL_STRIDE_BIN).getCanonicalPath();
+        FileIo.copyAssetToInternalStorage(context, ASSET_STRIDE_BIN, targetFilePath, true);
     }
 
     private static void initVmdAux(Context context) throws IOException {
@@ -159,6 +189,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     @Override
     protected File doInBackground(Uri... uri) {
         try { initVmd(mainActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initStride(mainActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initVmdAux(mainActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initTclAux(mainActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initMolfilePlugins(mainActivity); } catch (IOException e) { e.printStackTrace(); }
