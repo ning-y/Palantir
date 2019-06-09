@@ -9,13 +9,13 @@ import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import io.ningyuan.palantir.R;
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 import io.ningyuan.palantir.utils.Toaster;
 
 /**
  * {@link FloatingActionButton} extended to automatically register an
  * {@link android.view.View.OnClickListener} which runs the necessary steps to initiate a file
- * (Wavefront OBJ or binary glTF) import.
+ * (Wavefront OBJ, binary glTF or PDB) import.
  */
 public class ImportButton extends FloatingActionButton {
     public static final int IMPORT_FILE_RESULT = 1;
@@ -24,22 +24,22 @@ public class ImportButton extends FloatingActionButton {
     public static final int IMPORT_MODE_PDB = 3;
 
     private int importModeToTrigger;
-    private SceneformActivity sceneformActivity;
+    private MainActivity mainActivity;
 
     public ImportButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.sceneformActivity = (SceneformActivity) context;
+        this.mainActivity = (MainActivity) context;
         this.setOnClickListener(new OnClickListener());
     }
 
     /**
-     * Determine what value the {@link SceneformActivity#importMode} should take upon click of this
+     * Determine what value the {@link MainActivity#importMode} should take upon click of this
      * button.
      *
-     * @param importModeToTrigger the value which {@link SceneformActivity#importMode} should be
+     * @param importModeToTrigger the value which {@link MainActivity#importMode} should be
      *                            set to upon clock of this button. Either {@link #IMPORT_MODE_GLB},
      *                            {@link #IMPORT_MODE_OBJ}, or {@link #IMPORT_MODE_PDB}.
-     * @see SceneformActivity#setImportMode(int)
+     * @see MainActivity#setImportMode(int)
      */
     public void setImportModeToTrigger(int importModeToTrigger) {
         this.importModeToTrigger = importModeToTrigger;
@@ -60,12 +60,12 @@ public class ImportButton extends FloatingActionButton {
             importIntent.setType("*/*");
 
             // Only startActivity if there is a resolvable activity; if not checked, will crash
-            if (importIntent.resolveActivity(sceneformActivity.getPackageManager()) != null) {
+            if (importIntent.resolveActivity(mainActivity.getPackageManager()) != null) {
                 ((FloatingActionsMenu) getParent()).collapse();
-                sceneformActivity.setImportMode(importModeToTrigger);
-                sceneformActivity.startActivityForResult(importIntent, IMPORT_FILE_RESULT);
+                mainActivity.setImportMode(importModeToTrigger);
+                mainActivity.startActivityForResult(importIntent, IMPORT_FILE_RESULT);
             } else {
-                Toaster.showToastLong(sceneformActivity, R.string.error_no_resolvable_activity);
+                Toaster.showToastLong(mainActivity, R.string.error_no_resolvable_activity);
             }
         }
     }

@@ -7,15 +7,17 @@ import android.view.View;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
-import io.ningyuan.palantir.SceneformActivity;
-import io.ningyuan.palantir.utils.PdbSearcher;
+import io.ningyuan.palantir.MainActivity;
 
+/**
+ * Simply collapses the parent menu, and activates a search dialog on-click.
+ */
 public class SearchButton extends FloatingActionButton {
-    private SceneformActivity sceneformActivity;
+    private MainActivity mainActivity;
 
     public SearchButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.sceneformActivity = (SceneformActivity) context;
+        this.mainActivity = (MainActivity) context;
         this.setOnClickListener(new OnClickListener());
     }
 
@@ -28,9 +30,8 @@ public class SearchButton extends FloatingActionButton {
     public class OnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            String pdbId = "4OJ2";
-            new PdbSearcher(sceneformActivity).execute(pdbId);
             ((FloatingActionsMenu) getParent()).collapse();
+            mainActivity.onSearchRequested();
         }
     }
 }

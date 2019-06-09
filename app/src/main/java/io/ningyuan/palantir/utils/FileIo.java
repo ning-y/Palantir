@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
-import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
 
@@ -13,13 +12,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 
 /**
  * Convenience methods for file I/O operations.
  */
 public class FileIo {
-    private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, FileIo.class.getSimpleName());
+    private static final String TAG = String.format("%s:%s", MainActivity.TAG, FileIo.class.getSimpleName());
 
     /**
      * From a content {@link Uri} (content://), obtain the real filename.
@@ -58,20 +57,17 @@ public class FileIo {
     }
 
     public static File copyAssetToInternalStorage(Context context, String assetPath, String targetPath, boolean shouldSetExecutable) throws IOException {
-        log("copyAssetToInternalStorage/4: considering %s to %s\n", assetPath, targetPath);
         return isAssetPathDir(context, assetPath)
                 ? copyAssetDirToInteralStorage(context, assetPath, targetPath)
                 : copyAssetFileToInternalStorage(context, assetPath, targetPath, shouldSetExecutable);
     }
 
     public static File copyAssetToInternalStorage(Context context, String assetPath, String targetPath) throws IOException {
-        log("copyAssetToInternalStorage/3: considering %s to %s\n", assetPath, targetPath);
         return copyAssetToInternalStorage(context, assetPath, targetPath, false);
     }
 
 
     private static File copyAssetDirToInteralStorage(Context context, String assetPath, String targetPath) throws IOException {
-        log("copyAssetDirToInternalStorage/3: considering %s to %s\n", assetPath, targetPath);
         for (String relAssetPath : context.getAssets().list(assetPath)) {
             // relPath is a path to the file in relation to the asset root.
             // each relPath differs only in the file name (or directory name)
@@ -85,13 +81,11 @@ public class FileIo {
     }
 
     private static File copyAssetFileToInternalStorage(Context context, String assetPath, String targetPath, boolean shouldSetExecutable) throws IOException {
-        log("copyAssetFileToInternalStorage/4: considering %s to %s\n", assetPath, targetPath);
         File targetFile = new File(targetPath);
 
         // file already exists---nothing to do
         if (targetFile.exists()) return targetFile;
 
-        log("copyAssetFileToInternalStorage/4: copying %s to %s\n", assetPath, targetPath);
         // file does not exist; create it's containing parent dirs, then copy it over
         targetFile.getParentFile().mkdirs();
         InputStream inputStream = context.getAssets().open(assetPath);
@@ -112,15 +106,10 @@ public class FileIo {
      * @return if the {@param assetPath} is pointing to a directory (instead of a file)
      */
     private static boolean isAssetPathDir(Context context, String assetPath) throws IOException {
-        log("isAssetPathDir/2: %s gives %s", assetPath, String.valueOf(context.getAssets().list(assetPath).length != 0));
         return context.getAssets().list(assetPath).length != 0;
     }
 
     public static android.net.Uri javaUriToAndroidUri(java.net.URI javaUri) {
         return android.net.Uri.parse(javaUri.toString());
-    }
-
-    private static void log(String template, String... args) {
-        Log.d(TAG, String.format(template, args));
     }
 }

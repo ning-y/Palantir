@@ -6,34 +6,34 @@ import android.os.AsyncTask;
 import java.io.File;
 import java.io.IOException;
 
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 
 public class GlbRenderer extends AsyncTask<Uri, Void, File> {
     private boolean skipOnPreExecute;
-    private SceneformActivity sceneformActivity;
+    private MainActivity mainActivity;
     private String modelName;
 
-    public GlbRenderer(SceneformActivity sceneformActivity, String modelName) {
-        this.sceneformActivity = sceneformActivity;
+    public GlbRenderer(MainActivity mainActivity, String modelName) {
+        this.mainActivity = mainActivity;
         this.modelName = modelName;
     }
 
-    public GlbRenderer(SceneformActivity sceneformActivity, String modelName, Boolean skipOnPreExecute) {
-        this(sceneformActivity, modelName);
+    public GlbRenderer(MainActivity mainActivity, String modelName, Boolean skipOnPreExecute) {
+        this(mainActivity, modelName);
         this.skipOnPreExecute = skipOnPreExecute;
     }
 
     @Override
     protected void onPreExecute() {
         if (!skipOnPreExecute) {
-            sceneformActivity.updateModelNameTextView("Importing .glb file...");
+            mainActivity.updateStatusString("Importing .glb file...");
         }
     }
 
     @Override
     protected File doInBackground(Uri... contentUris) {
         try {
-            File glbFile = FileIo.cacheFileFromContentUri(sceneformActivity, contentUris[0], ".glb");
+            File glbFile = FileIo.cacheFileFromContentUri(mainActivity, contentUris[0], ".glb");
             return glbFile;
         } catch (IOException e) {
             e.printStackTrace();
@@ -44,11 +44,11 @@ public class GlbRenderer extends AsyncTask<Uri, Void, File> {
     @Override
     protected void onPostExecute(File glbFile) {
         if (glbFile == null) {
-            Toaster.showToastShort(sceneformActivity, "Import failed.");
-            sceneformActivity.updateModelNameTextView("Add a model file to begin!");
+            Toaster.showToastShort(mainActivity, "Import failed.");
+            mainActivity.updateStatusString("Add a model file to begin!");
         } else {
-            sceneformActivity.updateModelRenderable(glbFile.getName(), glbFile);
-            sceneformActivity.updateModelNameTextView(modelName);
+            mainActivity.updateModelRenderable(glbFile.getName(), glbFile);
+            mainActivity.updateStatusString(modelName);
         }
     }
 }

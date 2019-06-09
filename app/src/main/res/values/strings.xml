@@ -16,6 +16,9 @@
     <string name="error_no_model_renderable">You must first import a *.glb file!</string>
     <string name="error_no_resolvable_activity">Something went wrong: there is no application configured to browse your filesystem.</string>
 
+    <string name="searchable_label">Palantir</string>
+    <string name="searchable_hint">Enter a RCSB PDB search term</string>
+
     <string name="tcl_script_template">
         mol addfile %s \n
         mol modstyle 0 0 Newcartoon \n

@@ -9,38 +9,42 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import io.ningyuan.jPdbApi.Pdb;
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 
 public class PdbSearcher extends AsyncTask<String, Void, File> {
-    private SceneformActivity sceneformActivity;
+    private MainActivity mainActivity;
 
-    public PdbSearcher(SceneformActivity sceneformActivity) {
-        this.sceneformActivity = sceneformActivity;
+    public PdbSearcher(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
     @Override
     protected void onPreExecute() {
-        sceneformActivity.updateModelNameTextView("Searching...");
+        mainActivity.updateStatusString("Searching...");
     }
 
     @Override
-    protected File doInBackground(String... pdbIds) {
+    protected File doInBackground(String... queries) {
         try {
-            String pdbId = pdbIds[0];
-            Pdb pdb = new Pdb(pdbId);
-            File cacheFile = File.createTempFile(pdbId, ".pdb", sceneformActivity.getCacheDir());
+            String query = queries[0];
+            Pdb pdb = new Pdb(query);
+            File cacheFile = File.createTempFile(query, ".pdb", mainActivity.getCacheDir());
             FileOutputStream outputStream = new FileOutputStream(cacheFile);
             IOUtils.copy(pdb.getInputStream(), outputStream);
             outputStream.close();
             return cacheFile;
         } catch (IOException e) {
-            sceneformActivity.updateModelNameTextView("Something went wrong with PDB import.");
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
     protected void onPostExecute(File pdbFile) {
-        new PdbRenderer(sceneformActivity).execute(FileIo.javaUriToAndroidUri(pdbFile.toURI()));
+        if (pdbFile != null) {
+            new PdbRenderer(mainActivity).execute(FileIo.javaUriToAndroidUri(pdbFile.toURI()));
+        } else {
+            mainActivity.updateStatusString("Something went wrong.");
+        }
     }
 }

@@ -26,7 +26,7 @@ import com.google.ar.sceneform.ux.TransformableNode;
 import java.io.File;
 
 import io.ningyuan.palantir.R;
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 
 import static io.ningyuan.palantir.utils.Toaster.showToastLong;
 
@@ -41,7 +41,7 @@ public class SceneformFragment extends ArFragment {
     private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
     private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
 
-    private SceneformActivity parentActivity;
+    private MainActivity parentActivity;
     private ModelRenderable modelRenderable;
 
     /**
@@ -75,15 +75,15 @@ public class SceneformFragment extends ArFragment {
 
     /**
      * Setter to obtain a reference to the parent activity of this {@link android.app.Fragment},
-     * usually the {@link SceneformActivity}. {@link #parentActivity} is set here in this setter
+     * usually the {@link MainActivity}. {@link #parentActivity} is set here in this setter
      * method rather than automatically in {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)},
      * because using {@link View#getParent()} in the latter will return null, since the parent is
      * not yet assigned while the {@link android.app.Fragment} is still being 'constructed'.
      *
      * @param activity the activity to set as the {@link #parentActivity}, usually a
-     *                 {@link SceneformActivity}.
+     *                 {@link MainActivity}.
      */
-    public void setParentActivity(SceneformActivity activity) {
+    public void setParentActivity(MainActivity activity) {
         this.parentActivity = activity;
     }
 
@@ -96,7 +96,7 @@ public class SceneformFragment extends ArFragment {
      * @param glbFile  a file accessible to this application (in terms of permissions), which is
      *                 what is to be rendered.
      * @param thenDo   lambda to be called on success or failure
-     * @see SceneformActivity#onActivityResult(int, int, Intent)
+     * @see MainActivity#onActivityResult(int, int, Intent)
      */
     public void setModelRenderable(String filename, File glbFile, Runnable thenDo) {
         // Weird URI conversions coming up because java.net.URI != android.net.URI
