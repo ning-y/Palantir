@@ -13,23 +13,23 @@ import de.javagl.jgltf.model.GltfModels;
 import de.javagl.jgltf.model.io.GltfAsset;
 import de.javagl.jgltf.model.io.GltfModelWriter;
 import de.javagl.jgltf.obj.v2.ObjGltfAssetCreatorV2;
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 
 /**
  * Methods for Wavefront OBJ to binary glTF file conversions.
  */
 public class ObjRenderer extends AsyncTask<Uri, Void, File> {
-    private SceneformActivity sceneformActivity;
+    private MainActivity mainActivity;
     private String modelName;
 
-    public ObjRenderer(SceneformActivity sceneformActivity, String modelName) {
-        this.sceneformActivity = sceneformActivity;
+    public ObjRenderer(MainActivity mainActivity, String modelName) {
+        this.mainActivity = mainActivity;
         this.modelName = modelName;
     }
 
     @Override
     protected void onPreExecute() {
-        sceneformActivity.updateModelNameTextView("Importing .obj file...");
+        mainActivity.updateStatusString("Importing .obj file...");
     }
 
     @Override
@@ -37,8 +37,8 @@ public class ObjRenderer extends AsyncTask<Uri, Void, File> {
         try {
             /* Sceneform's does not support Wavefront OBJ files. Convert them to binary
                glTF (*.glb) first. */
-            File objFile = FileIo.cacheFileFromContentUri(sceneformActivity, contentUris[0], ".obj");
-            File glbFile = objFileToGlbFile(sceneformActivity, objFile);
+            File objFile = FileIo.cacheFileFromContentUri(mainActivity, contentUris[0], ".obj");
+            File glbFile = objFileToGlbFile(mainActivity, objFile);
             return glbFile;
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,7 +49,7 @@ public class ObjRenderer extends AsyncTask<Uri, Void, File> {
 
     @Override
     protected void onPostExecute(File glbFile) {
-        new GlbRenderer(sceneformActivity, modelName, true)
+        new GlbRenderer(mainActivity, modelName, true)
                 .execute(FileIo.javaUriToAndroidUri(glbFile.toURI()));
     }
 

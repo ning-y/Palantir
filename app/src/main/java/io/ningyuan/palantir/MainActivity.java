@@ -1,5 +1,6 @@
 package io.ningyuan.palantir;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,20 +17,22 @@ import io.ningyuan.palantir.utils.FileIo;
 import io.ningyuan.palantir.utils.GlbRenderer;
 import io.ningyuan.palantir.utils.ObjRenderer;
 import io.ningyuan.palantir.utils.PdbRenderer;
+import io.ningyuan.palantir.utils.PdbSearcher;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.ImportButton;
+import io.ningyuan.palantir.views.SearchButton;
 
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_FILE_RESULT;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_GLB;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_OBJ;
 import static io.ningyuan.palantir.views.ImportButton.IMPORT_MODE_PDB;
 
-public class SceneformActivity extends AppCompatActivity {
-    public static final String TAG = SceneformActivity.class.getSimpleName();
+public class MainActivity extends AppCompatActivity {
+    public static final String TAG = MainActivity.class.getSimpleName();
 
     private ProgressBar progressBar;
-    public SceneformFragment sceneformFragment;  // TODO: make private
-    private TextView modelNameTextView;
+    private SceneformFragment sceneformFragment;
+    private TextView statusTextView;
     private int importMode;
 
     @Override
@@ -44,8 +47,8 @@ public class SceneformActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_ux);
-        modelNameTextView = findViewById(R.id.model_name);
-        modelNameTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
+        statusTextView = findViewById(R.id.model_name);
+        statusTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
         progressBar = findViewById(R.id.progress_bar);
 
         final ImportButton importGlbButton = findViewById(R.id.import_glb_button);
@@ -72,17 +75,12 @@ public class SceneformActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
-        Log.d(TAG, String.format(
-                "onActivityResult called with requestCode %d; resultCode %d; importMode %d",
-                requestCode, resultCode, importMode
-        ));
-
         if (requestCode != IMPORT_FILE_RESULT || resultCode != RESULT_OK) {
             return;
         }
 
-        String lastModelName = modelNameTextView.getText().toString();
-        modelNameTextView.setText("Loading...");
+        String lastModelName = statusTextView.getText().toString();
+        statusTextView.setText("Loading...");
         progressBar.setVisibility(View.VISIBLE);
 
         Uri contentUri = resultIntent.getData();
@@ -111,7 +109,7 @@ public class SceneformActivity extends AppCompatActivity {
             if (glbFile != null) {
                 sceneformFragment.setModelRenderable(filename, glbFile,
                         () -> {
-                            modelNameTextView.setText(filename);
+                            statusTextView.setText(filename);
                             progressBar.setVisibility(View.INVISIBLE);
                         });
             } else {
@@ -123,8 +121,22 @@ public class SceneformActivity extends AppCompatActivity {
         } catch (IllegalStateException e) {
             Log.e(TAG, getString(R.string.log_import_failed_io) + e.toString());
             Toaster.showToastLong(this, R.string.error_import_failed_io);
-            modelNameTextView.setText(lastModelName);
+            statusTextView.setText(lastModelName);
             progressBar.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * Receive an intent. In this application, the only case in which this happens is from a
+     * {@link SearchButton}'s {@link MainActivity#onSearchRequested()}.
+     *
+     * @param intent
+     */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            new PdbSearcher(this).execute(query);
         }
     }
 
@@ -146,14 +158,14 @@ public class SceneformActivity extends AppCompatActivity {
         this.importMode = importMode;
     }
 
-    public void updateModelNameTextView(String updateTo) {
-        modelNameTextView.setText(updateTo);
+    public void updateStatusString(String updateTo) {
+        statusTextView.setText(updateTo);
     }
 
     public void updateModelRenderable(String name, File glbFile) {
         sceneformFragment.setModelRenderable(name, glbFile,
                 () -> {
-                    modelNameTextView.setText(name);
+                    statusTextView.setText(name);
                     progressBar.setVisibility(View.INVISIBLE);
                 });
     }

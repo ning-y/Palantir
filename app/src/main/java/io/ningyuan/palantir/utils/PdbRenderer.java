@@ -21,12 +21,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import io.ningyuan.palantir.R;
-import io.ningyuan.palantir.SceneformActivity;
+import io.ningyuan.palantir.MainActivity;
 
 import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 
 public class PdbRenderer extends AsyncTask<Uri, Void, File> {
-    private static final String TAG = String.format("%s:%s", SceneformActivity.TAG, PdbRenderer.class.getSimpleName());
+    private static final String TAG = String.format("%s:%s", MainActivity.TAG, PdbRenderer.class.getSimpleName());
 
     /* Locations of various important files in the androids assets folder, which need to be copied
     onto the devices' internal storage (files directory) */
@@ -39,10 +39,10 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static final String INTERNAL_VMD_AUX_DIR = "scripts/vmd";
     private static final String INTERNAL_VMD_BIN = "vmd/vmd";
 
-    private SceneformActivity sceneformActivity;
+    private MainActivity mainActivity;
 
-    public PdbRenderer(SceneformActivity sceneformActivity) {
-        this.sceneformActivity = sceneformActivity;
+    public PdbRenderer(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
 
     private static File pdbFileToObjFile(Context context, File pdbFile) throws IOException {
@@ -95,15 +95,12 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         InputStream stdout = process.getInputStream();
         InputStream stderr = process.getErrorStream();
 
-        Log.d(TAG, "call 0");
-
         String line;
         BufferedReader outReader = new BufferedReader(new InputStreamReader(stdout));
         while ((line = outReader.readLine()) != null) {
             Log.d(TAG, line);
         }
 
-        Log.d(TAG, "call 1");
         BufferedReader errReader = new BufferedReader(new InputStreamReader(stderr));
         while ((line = errReader.readLine()) != null) {
             Log.d(TAG, line);
@@ -156,20 +153,20 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
 
     @Override
     protected void onPreExecute() {
-        sceneformActivity.updateModelNameTextView("Importing .pdb file...");
+        mainActivity.updateStatusString("Importing .pdb file...");
     }
 
     @Override
     protected File doInBackground(Uri... uri) {
-        try { initVmd(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initVmdAux(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initTclAux(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
-        try { initMolfilePlugins(sceneformActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initVmd(mainActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initVmdAux(mainActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initTclAux(mainActivity); } catch (IOException e) { e.printStackTrace(); }
+        try { initMolfilePlugins(mainActivity); } catch (IOException e) { e.printStackTrace(); }
 
         try {
-            File pdbFile = cacheFileFromContentUri(sceneformActivity, uri[0], ".pdb");
-            File objFile = pdbFileToObjFile(sceneformActivity, pdbFile);
-            File glbFile = ObjRenderer.objFileToGlbFile(sceneformActivity, objFile);
+            File pdbFile = cacheFileFromContentUri(mainActivity, uri[0], ".pdb");
+            File objFile = pdbFileToObjFile(mainActivity, pdbFile);
+            File glbFile = ObjRenderer.objFileToGlbFile(mainActivity, objFile);
             return glbFile;
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,6 +177,6 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
 
     @Override
     protected void onPostExecute(File glbFile) {
-        sceneformActivity.updateModelRenderable(glbFile.getName(), glbFile);
+        mainActivity.updateModelRenderable(glbFile.getName(), glbFile);
     }
 }
