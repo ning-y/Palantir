@@ -82,20 +82,6 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     }
 
     private static void runVmd(Context context, String... args) throws IOException {
-        /* DEBUG STRIDE*/
-        File stride = new File(context.getFilesDir().getCanonicalPath(), INTERNAL_STRIDE_BIN);
-        LinkedList<String> cmd = new LinkedList<>();
-        cmd.addFirst(stride.getCanonicalPath());
-        ProcessBuilder pb = new ProcessBuilder(cmd);
-        Process p = pb.start();
-        InputStream is = p.getInputStream();
-        InputStream is2 = p.getErrorStream();
-        String l;
-        BufferedReader or = new BufferedReader(new InputStreamReader(is));
-        while ((l = or.readLine()) != null) { Log.d(TAG, l); }
-        BufferedReader er = new BufferedReader(new InputStreamReader(is2));
-        while ((l = er.readLine()) != null) { Log.d(TAG, l); }
-
         // Prepare the VMD command and args
         File vmd = new File(context.getFilesDir().getCanonicalPath(), INTERNAL_VMD_BIN);
         LinkedList<String> command = new LinkedList<>(Arrays.asList(args));
