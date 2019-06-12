@@ -33,13 +33,13 @@ import static io.ningyuan.palantir.utils.Toaster.showToastLong;
 /**
  * {@link ArFragment} extended to automatically register an
  * {@link com.google.ar.sceneform.ux.BaseArFragment.OnTapArPlaneListener}. Also handles the logic
- * for changing the model to be rendered (using {@link #setModelRenderable(String, File, ProgressBar)}.
+ * for changing the model to be rendered (using {@link #setModelRenderable(String, File, Runnable)}.
  */
 public class SceneformFragment extends ArFragment {
     private static final String LOG_TAG = SceneformFragment.class.getSimpleName();
     private static final double MIN_OPENGL_VERSION = 3.0;
-    private static final float SCALE_HACK_MAX = 0.1f;   // TODO: make this less hacky
-    private static final float SCALE_HACK_MIN = 0.05f;  // TODO: make this less hacky
+    private static final float SCALE_HACK_MAX = 0.5f;   // TODO: make this less hacky
+    private static final float SCALE_HACK_MIN = 0.1f;  // TODO: make this less hacky
 
     private MainActivity parentActivity;
     private ModelRenderable modelRenderable;
