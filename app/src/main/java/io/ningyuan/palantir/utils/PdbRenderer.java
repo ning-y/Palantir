@@ -20,12 +20,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import io.ningyuan.jPdbApi.Pdb;
 import io.ningyuan.palantir.R;
 import io.ningyuan.palantir.MainActivity;
+import io.ningyuan.palantir.models.Molecule;
 
 import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 
-public class PdbRenderer extends AsyncTask<Uri, Void, File> {
+public class PdbRenderer extends AsyncTask<Molecule, Void, Molecule> {
     private static final String TAG = String.format("%s:%s", MainActivity.TAG, PdbRenderer.class.getSimpleName());
 
     /* Locations of various important files in the androids assets folder, which need to be copied
@@ -37,7 +39,6 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     private static final String ASSET_VMD_BIN = "arm64-v8a/vmd";
     private static final String INTERNAL_MOLFILE_DIR = "plugins/LINUXAMD64/molfile";
     private static final String INTERNAL_STRIDE_BIN = "vmd/stride";
-    private static final String INTERNAL_STRIDE_BIN_DIR = "vmd";
     private static final String INTERNAL_TCL_AUX_DIR = "tcl_libraries";
     private static final String INTERNAL_VMD_AUX_DIR = "scripts/vmd";
     private static final String INTERNAL_VMD_BIN = "vmd/vmd";
@@ -173,7 +174,7 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     }
 
     @Override
-    protected File doInBackground(Uri... uri) {
+    protected Molecule doInBackground(Molecule... molecules) {
         try { initVmd(mainActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initStride(mainActivity); } catch (IOException e) { e.printStackTrace(); }
         try { initVmdAux(mainActivity); } catch (IOException e) { e.printStackTrace(); }
@@ -181,11 +182,15 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
         try { initMolfilePlugins(mainActivity); } catch (IOException e) { e.printStackTrace(); }
 
         try {
-            File pdbFile = cacheFileFromContentUri(mainActivity, uri[0], ".pdb");
+            Molecule molecule = molecules[0];
+            Uri pdbFileUri = molecule.getPdbFileUri();
+            File pdbFile = cacheFileFromContentUri(mainActivity, pdbFileUri, ".pdb");
             File objFile = pdbFileToObjFile(mainActivity, pdbFile);
             File glbFile = ObjRenderer.objFileToGlbFile(mainActivity, objFile);
-            return glbFile;
+            molecule.setGlbFile(glbFile);
+            return molecule;
         } catch (IOException e) {
+            Log.e(TAG, null, e);
             e.printStackTrace();
         }
 
@@ -193,7 +198,10 @@ public class PdbRenderer extends AsyncTask<Uri, Void, File> {
     }
 
     @Override
-    protected void onPostExecute(File glbFile) {
-        mainActivity.updateModelRenderable(glbFile.getName(), glbFile);
+    protected void onPostExecute(Molecule molecule) {
+        mainActivity.updateModelRenderable(
+            molecule.getPdb().toString(),
+            molecule.getGlbFile()
+        );
     }
 }
