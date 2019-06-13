@@ -19,49 +19,17 @@
         android:layout_margin="20dp"
         android:fontFamily="monospace" />
 
-    <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/floating_actions_menu"
+    <io.ningyuan.palantir.views.SearchButton
+        android:id="@+id/search_rcsb_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        fab:fab_labelStyle="@style/FloatingActionButtonLabels"
-        fab:fab_labelsPosition="left">
-
-        <io.ningyuan.palantir.views.ImportButton
-            android:id="@+id/import_glb_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_file_upload_black_24dp"
-            fab:fab_title="Import binary glTF (*.glb)" />
-
-        <io.ningyuan.palantir.views.ImportButton
-            android:id="@+id/import_obj_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_file_upload_black_24dp"
-            fab:fab_title="Import Wavefront OBJ (*.obj)" />
-
-        <io.ningyuan.palantir.views.ImportButton
-            android:id="@+id/import_pdb_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_file_upload_black_24dp"
-            fab:fab_title="Import Protein Databank file (*.pdb)"
-            />
-
-        <io.ningyuan.palantir.views.SearchButton
-            android:id="@+id/import_rcsb_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_file_upload_black_24dp"
-            fab:fab_title="RCSB PDB Search"
-        />
-
-    </com.getbase.floatingactionbutton.FloatingActionsMenu>
+        android:layout_margin="18dp"
+        android:background="@null"
+        android:backgroundTint="@color/lightGray"
+        android:tint="@color/darkGray"
+        android:src="@drawable/ic_search_black_24dp"
+    />
 
     <ProgressBar
         android:id="@+id/progress_bar"
