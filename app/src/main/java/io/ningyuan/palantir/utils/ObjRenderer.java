@@ -3,6 +3,7 @@ package io.ningyuan.palantir.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import io.ningyuan.palantir.MainActivity;
  * Methods for Wavefront OBJ to binary glTF file conversions.
  */
 public class ObjRenderer extends AsyncTask<Uri, Void, File> {
+    private static final String TAG = String.format("PALANTIR::%s", ObjRenderer.class.getSimpleName());
     private MainActivity mainActivity;
     private String modelName;
 
@@ -64,6 +66,11 @@ public class ObjRenderer extends AsyncTask<Uri, Void, File> {
      * @throws NoSuchElementException
      */
     public static File objFileToGlbFile(Context context, File objFile) throws IOException, IllegalArgumentException, NoSuchElementException {
+        Log.d(TAG, String.format("objFile at %s", objFile.getAbsolutePath()));
+        for (File f : context.getCacheDir().listFiles()) {
+            Log.d(TAG, f.getAbsolutePath());
+        }
+
         ObjGltfAssetCreatorV2 gltfAssetCreator = new ObjGltfAssetCreatorV2();
         GltfAsset gltfAsset = gltfAssetCreator.create(objFile.toURI());
         GltfModel gltfModel = GltfModels.create(gltfAsset);

@@ -1,11 +1,9 @@
 package io.ningyuan.palantir.views;
 
 import android.content.Context;
+import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.View;
-
-import com.getbase.floatingactionbutton.FloatingActionButton;
-import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import io.ningyuan.palantir.MainActivity;
 
@@ -30,7 +28,6 @@ public class SearchButton extends FloatingActionButton {
     public class OnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            ((FloatingActionsMenu) getParent()).collapse();
             mainActivity.onSearchRequested();
         }
     }
