@@ -89,9 +89,9 @@ preBuild.dependsOn fetchStrideSrc
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.6.0'
-    implementation 'com.google.ar.sceneform:assets:1.6.0'
+    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.10.0'
+    implementation 'com.google.ar.sceneform:assets:1.10.0'
     implementation 'commons-io:commons-io:2.6'
     implementation 'de.javagl:jgltf-obj:2.0.0'
-    implementation 'io.ningyuan:jPdbApi:0.0.1-SNAPSHOT'
+    implementation 'io.ningyuan:jPdbApi:0.0.2'
 }
