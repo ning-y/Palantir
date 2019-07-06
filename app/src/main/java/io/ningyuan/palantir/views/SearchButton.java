@@ -28,7 +28,7 @@ public class SearchButton extends FloatingActionButton {
     public class OnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            mainActivity.onSearchRequested();
+            mainActivity.activateSearchView();
         }
     }
 }

@@ -1,5 +1,4 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,25 +10,48 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <TextView
-        android:id="@+id/model_name"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|center"
-        android:layout_margin="20dp"
-        android:fontFamily="monospace" />
+        android:fitsSystemWindows="true">
+        <SearchView
+            android:id="@+id/search_view"
+            android:layout_marginRight="18dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:iconifiedByDefault="false"
+            android:visibility="gone"/>
+    </RelativeLayout>
 
-    <io.ningyuan.palantir.views.SearchButton
-        android:id="@+id/search_rcsb_button"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="18dp"
-        android:background="@null"
-        android:backgroundTint="@color/lightGray"
-        android:tint="@color/darkGray"
-        android:src="@drawable/ic_search_black_24dp"
-    />
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="18dp">
+        <TextView
+            android:id="@+id/model_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
+            android:layout_toLeftOf="@id/search_rcsb_button"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:fontFamily="monospace" />
+        <io.ningyuan.palantir.views.SearchButton
+            android:id="@+id/search_rcsb_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:background="@null"
+            android:backgroundTint="@color/lightGray"
+            android:tint="@color/darkGray"
+            android:src="@drawable/ic_search_black_24dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+
+            />
+    </RelativeLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar"
