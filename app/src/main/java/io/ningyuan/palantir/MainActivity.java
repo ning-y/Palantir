@@ -2,20 +2,25 @@ package io.ningyuan.palantir;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.content.Intent;
+import android.database.MatrixCursor;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CursorAdapter;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.PdbSearcher;
-import io.ningyuan.palantir.views.SearchButton;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -24,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private SceneformFragment sceneformFragment;
     private SearchView searchView;
     private TextView statusTextView;
+
+    private PdbSearcher pdbSearcher = new PdbSearcher(this);
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -44,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = findViewById(R.id.search_view);
         searchView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        // TODO remove this searchable trash
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextFocusChangeListener((View view, boolean hasFocus) -> {
             if (hasFocus) {
@@ -51,23 +59,64 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        final CursorAdapter suggestionAdaptor = new SimpleCursorAdapter(
+                this, android.R.layout.simple_list_item_2, null,
+                new String[]{SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_TEXT_2},
+                new int[]{android.R.id.text1, android.R.id.text2}, 0);
+        final List<String> suggestions = new ArrayList<>();
+        searchView.setSuggestionsAdapter(suggestionAdaptor);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int i) {
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int i) {
+                String query = suggestions.get(i);
+                deactivateSearchView();
+                // TODO startRender(query);
+
+                return false;
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                doSearch(suggestionAdaptor, s);
+                return false;
+            }
+        });
+
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
     }
 
-    /**
-     * Receive an intent. In this application, the only case in which this happens is from a
-     * {@link SearchButton}'s {@link MainActivity#onSearchRequested()}.
-     *
-     * @param intent
-     */
-    @Override
-    protected void onNewIntent(Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            new PdbSearcher(this).execute(query);
-            deactivateSearchView();
+    protected void doSearch(CursorAdapter cursorAdapter, String query) {
+        if (query.length() < 3) {
+            pdbSearcher.cancel(true);
+            String[] columns = {
+                    BaseColumns._ID,
+                    SearchManager.SUGGEST_COLUMN_TEXT_1,
+                    SearchManager.SUGGEST_COLUMN_TEXT_2
+            };
+            MatrixCursor cursor = new MatrixCursor(columns);
+            cursorAdapter.swapCursor(cursor);
+            return;
         }
+
+        if (pdbSearcher.isRunning()) {
+            pdbSearcher.cancel(true);
+        }
+
+        pdbSearcher = new PdbSearcher(this);
+        pdbSearcher.execute(new Pair<>(cursorAdapter, query));
     }
 
     public void updateStatusString(String updateTo) {
