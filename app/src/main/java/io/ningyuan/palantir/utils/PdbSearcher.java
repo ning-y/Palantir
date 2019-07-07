@@ -5,25 +5,24 @@ import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.provider.BaseColumns;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.CursorAdapter;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import io.ningyuan.jPdbApi.Pdb;
 import io.ningyuan.jPdbApi.Query;
-import io.ningyuan.palantir.MainActivity;
 
-public class PdbSearcher extends AsyncTask<Pair<CursorAdapter, String>, Void, Pair<CursorAdapter, MatrixCursor>> {
+public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     private static final String TAG = String.format("PALANTIR::%s", PdbSearcher.class.getSimpleName());
-    private MainActivity mainActivity;
     private boolean inProgress = false;
+    private CursorAdapter adapter;
 
-    public PdbSearcher(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
+    public PdbSearcher(CursorAdapter adapter) {
+        this.adapter = adapter;
     }
 
     public boolean isRunning() {
@@ -32,14 +31,12 @@ public class PdbSearcher extends AsyncTask<Pair<CursorAdapter, String>, Void, Pa
 
     @Override
     protected void onPreExecute() {
-        mainActivity.updateStatusString("Searching...");
         inProgress = true;
     }
 
     @Override
-    protected Pair<CursorAdapter, MatrixCursor> doInBackground(Pair<CursorAdapter, String>... cursorAdaptorQueryPair) {
-        CursorAdapter cursorAdapter = cursorAdaptorQueryPair[0].first;
-        String queryString = cursorAdaptorQueryPair[0].second;
+    protected MatrixCursor doInBackground(String... queryStrings) {
+        String queryString = queryStrings[0];
 
         try {
             Query query = new Query(Query.KEYWORD_QUERY, queryString);
@@ -50,14 +47,20 @@ public class PdbSearcher extends AsyncTask<Pair<CursorAdapter, String>, Void, Pa
                     SearchManager.SUGGEST_COLUMN_TEXT_2
             };
             MatrixCursor cursor = new MatrixCursor(columns);
+            Log.i(TAG, Arrays.toString(results.toArray()));
             int index = 1;
             for (String pdbId : results) {
+                Log.i(TAG, String.format("%s found %s", queryString, pdbId));
                 Pdb pdb = new Pdb(pdbId);
-                pdb.load();
-                cursor.addRow(new Object[]{index++, pdb.getStructureId(), pdb.getTitle()});
+                try {
+                    pdb.load();
+                    cursor.addRow(new Object[]{index++, pdb.getStructureId(), pdb.getTitle()});
+                } catch (IOException e) {
+                    Log.e(TAG, "Encountered an exception.", e);
+                }
             }
 
-            return new Pair<>(cursorAdapter, cursor);
+            return cursor;
         } catch (IOException | ParserConfigurationException e) {
             Log.e(TAG, null, e);
             return null;
@@ -65,17 +68,23 @@ public class PdbSearcher extends AsyncTask<Pair<CursorAdapter, String>, Void, Pa
     }
 
     @Override
-    protected void onPostExecute(Pair<CursorAdapter, MatrixCursor> adapterCursorPair) {
+    protected void onPostExecute(MatrixCursor cursor) {
         inProgress = false;
-        if (adapterCursorPair != null) {
-            CursorAdapter cursorAdapter = adapterCursorPair.first;
-            MatrixCursor cursor = adapterCursorPair.second;
-            cursorAdapter.swapCursor(cursor);
+
+        if (cursor == null) {
+            String[] columns = {
+                    BaseColumns._ID,
+                    SearchManager.SUGGEST_COLUMN_TEXT_1,
+                    SearchManager.SUGGEST_COLUMN_TEXT_2
+            };
+            cursor = new MatrixCursor(columns);
         }
+
+        adapter.swapCursor(cursor);
     }
 
     @Override
-    protected void onCancelled(Pair<CursorAdapter, MatrixCursor> result) {
+    protected void onCancelled(MatrixCursor cursor) {
         inProgress = false;
     }
 }

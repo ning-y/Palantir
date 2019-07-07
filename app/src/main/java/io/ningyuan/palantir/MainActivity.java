@@ -6,7 +6,6 @@ import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Pair;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CursorAdapter;
@@ -16,21 +15,19 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
+import io.ningyuan.palantir.utils.PdbRenderer;
 import io.ningyuan.palantir.utils.PdbSearcher;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    private PdbSearcher pdbSearcher;
     private ProgressBar progressBar;
     private SceneformFragment sceneformFragment;
     private SearchView searchView;
     private TextView statusTextView;
-
-    private PdbSearcher pdbSearcher = new PdbSearcher(this);
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -63,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 this, android.R.layout.simple_list_item_2, null,
                 new String[]{SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_TEXT_2},
                 new int[]{android.R.id.text1, android.R.id.text2}, 0);
-        final List<String> suggestions = new ArrayList<>();
+        pdbSearcher = new PdbSearcher(suggestionAdaptor);
         searchView.setSuggestionsAdapter(suggestionAdaptor);
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
@@ -73,9 +70,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onSuggestionClick(int i) {
-                String query = suggestions.get(i);
+                suggestionAdaptor.getCursor().moveToPosition(i);
+                String query = suggestionAdaptor.getCursor().getString(1);
                 deactivateSearchView();
-                // TODO startRender(query);
+                doRender(query);
 
                 return false;
             }
@@ -115,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
             pdbSearcher.cancel(true);
         }
 
-        pdbSearcher = new PdbSearcher(this);
-        pdbSearcher.execute(new Pair<>(cursorAdapter, query));
+        pdbSearcher = new PdbSearcher(cursorAdapter);
+        pdbSearcher.execute(query);
     }
 
     public void updateStatusString(String updateTo) {
@@ -152,5 +150,9 @@ public class MainActivity extends AppCompatActivity {
         if (imm != null) {
             imm.showSoftInput(view, 0);
         }
+    }
+
+    private void doRender(String pdbId) {
+        new PdbRenderer(this, pdbId).execute();
     }
 }
