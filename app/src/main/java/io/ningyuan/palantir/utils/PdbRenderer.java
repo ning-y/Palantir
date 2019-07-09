@@ -210,7 +210,7 @@ public class PdbRenderer extends AsyncTask<Void, Void, Molecule> {
     @Override
     protected void onPostExecute(Molecule molecule) {
         if (molecule == null) {
-            mainActivity.updateStatusString("Something went wrong with the render.");
+            mainActivity.updateStatusString(String.format("Couldn't render PDB with ID %s", pdbId));
         } else {
             mainActivity.updateModelRenderable(
                     molecule.getPdb().toString(),

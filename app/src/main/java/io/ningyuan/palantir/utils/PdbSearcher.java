@@ -8,7 +8,6 @@ import android.util.Log;
 import android.widget.CursorAdapter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,10 +46,8 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
                     SearchManager.SUGGEST_COLUMN_TEXT_2
             };
             MatrixCursor cursor = new MatrixCursor(columns);
-            Log.i(TAG, Arrays.toString(results.toArray()));
             int index = 1;
             for (String pdbId : results) {
-                Log.i(TAG, String.format("%s found %s", queryString, pdbId));
                 Pdb pdb = new Pdb(pdbId);
                 try {
                     pdb.load();

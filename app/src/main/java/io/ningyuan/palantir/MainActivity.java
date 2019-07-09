@@ -6,6 +6,7 @@ import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CursorAdapter;
@@ -45,11 +46,8 @@ public class MainActivity extends AppCompatActivity {
         statusTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
         progressBar = findViewById(R.id.progress_bar);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = findViewById(R.id.search_view);
         searchView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        // TODO remove this searchable trash
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextFocusChangeListener((View view, boolean hasFocus) -> {
             if (hasFocus) {
                 showInputMethod(view.findFocus());
@@ -82,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                Log.i("PdbSearcher", "onQueryTextSubmit");
+                deactivateSearchView();
+                new PdbRenderer(MainActivity.this, s).execute();
                 return false;
             }
 
@@ -109,11 +110,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (pdbSearcher.isRunning()) {
+        if (pdbSearcher.isRunning() || pdbSearcher.isCancelled()) {
             pdbSearcher.cancel(true);
+            pdbSearcher = new PdbSearcher(cursorAdapter);
         }
 
-        pdbSearcher = new PdbSearcher(cursorAdapter);
         pdbSearcher.execute(query);
     }
 
@@ -136,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void deactivateSearchView() {
+        pdbSearcher.cancel(true);
+        Log.i("PdbSearcher", "cancelled");
         searchView.setVisibility(View.GONE);
 
         // Hide system UI elements: status and navigation bars
