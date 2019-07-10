@@ -28,7 +28,7 @@ import io.ningyuan.palantir.models.Molecule;
 import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
 
 public class PdbRenderer extends AsyncTask<Void, Void, Molecule> {
-    private static final String TAG = String.format("%s:%s", MainActivity.TAG, PdbRenderer.class.getSimpleName());
+    private static final String TAG = String.format("PALANTIR::%s", PdbRenderer.class.getSimpleName());
 
     /* Locations of various important files in the androids assets folder, which need to be copied
     onto the devices' internal storage (files directory) */

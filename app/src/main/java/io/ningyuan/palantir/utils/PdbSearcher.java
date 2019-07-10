@@ -7,6 +7,7 @@ import android.provider.BaseColumns;
 import android.util.Log;
 import android.widget.CursorAdapter;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -47,12 +48,14 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
             };
             MatrixCursor cursor = new MatrixCursor(columns);
             int index = 1;
+            Log.i(TAG, "Start for in doInBackground");
             for (String pdbId : results) {
+                Log.i(TAG, pdbId);
                 Pdb pdb = new Pdb(pdbId);
                 try {
                     pdb.load();
                     cursor.addRow(new Object[]{index++, pdb.getStructureId(), pdb.getTitle()});
-                } catch (IOException e) {
+                } catch (FileNotFoundException e) {
                     Log.e(TAG, "Encountered an exception.", e);
                 }
             }
@@ -67,6 +70,8 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     @Override
     protected void onPostExecute(MatrixCursor cursor) {
         inProgress = false;
+        Log.e(TAG, cursor.toString());
+        Log.e(TAG, String.valueOf(cursor.getCount()));
 
         if (cursor == null) {
             String[] columns = {
@@ -77,7 +82,7 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
             cursor = new MatrixCursor(columns);
         }
 
-        adapter.swapCursor(cursor);
+        adapter.changeCursor(cursor);
     }
 
     @Override

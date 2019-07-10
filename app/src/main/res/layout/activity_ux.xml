@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
-        <SearchView
+        <io.ningyuan.palantir.views.SearchView
             android:id="@+id/search_view"
             android:layout_marginRight="18dp"
             android:layout_width="match_parent"
@@ -48,17 +48,6 @@
             android:tint="@color/darkGray"
             android:src="@drawable/ic_search_black_24dp"
             android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-
-            />
+            android:layout_alignParentBottom="true" />
     </RelativeLayout>
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:layout_marginTop="1dp"
-        android:visibility="invisible" />
-
 </FrameLayout>

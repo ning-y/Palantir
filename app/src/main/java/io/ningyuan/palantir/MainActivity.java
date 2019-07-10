@@ -1,33 +1,20 @@
 package io.ningyuan.palantir;
 
-import android.app.SearchManager;
-import android.content.Context;
-import android.database.MatrixCursor;
 import android.os.Bundle;
-import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CursorAdapter;
-import android.widget.ProgressBar;
-import android.widget.SearchView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.io.File;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.PdbRenderer;
-import io.ningyuan.palantir.utils.PdbSearcher;
+import io.ningyuan.palantir.views.SearchButton;
+import io.ningyuan.palantir.views.SearchView;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = String.format("PALANTIR::%s", MainActivity.class.getSimpleName());
 
-    private PdbSearcher pdbSearcher;
-    private ProgressBar progressBar;
     private SceneformFragment sceneformFragment;
-    private SearchView searchView;
     private TextView statusTextView;
 
     @Override
@@ -44,78 +31,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ux);
         statusTextView = findViewById(R.id.model_name);
         statusTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
-        progressBar = findViewById(R.id.progress_bar);
 
-        searchView = findViewById(R.id.search_view);
-        searchView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        searchView.setOnQueryTextFocusChangeListener((View view, boolean hasFocus) -> {
-            if (hasFocus) {
-                showInputMethod(view.findFocus());
-            }
-        });
-
-        final CursorAdapter suggestionAdaptor = new SimpleCursorAdapter(
-                this, android.R.layout.simple_list_item_2, null,
-                new String[]{SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_TEXT_2},
-                new int[]{android.R.id.text1, android.R.id.text2}, 0);
-        pdbSearcher = new PdbSearcher(suggestionAdaptor);
-        searchView.setSuggestionsAdapter(suggestionAdaptor);
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int i) {
-                return false;
-            }
-
-            @Override
-            public boolean onSuggestionClick(int i) {
-                suggestionAdaptor.getCursor().moveToPosition(i);
-                String query = suggestionAdaptor.getCursor().getString(1);
-                deactivateSearchView();
-                doRender(query);
-
-                return false;
-            }
-        });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                Log.i("PdbSearcher", "onQueryTextSubmit");
-                deactivateSearchView();
-                new PdbRenderer(MainActivity.this, s).execute();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                doSearch(suggestionAdaptor, s);
-                return false;
-            }
-        });
+        SearchButton searchButton = findViewById(R.id.search_rcsb_button);
+        SearchView searchView = findViewById(R.id.search_view);
+        searchButton.setSearchView(searchView);
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
     }
 
-    protected void doSearch(CursorAdapter cursorAdapter, String query) {
-        if (query.length() < 3) {
-            pdbSearcher.cancel(true);
-            String[] columns = {
-                    BaseColumns._ID,
-                    SearchManager.SUGGEST_COLUMN_TEXT_1,
-                    SearchManager.SUGGEST_COLUMN_TEXT_2
-            };
-            MatrixCursor cursor = new MatrixCursor(columns);
-            cursorAdapter.swapCursor(cursor);
-            return;
-        }
-
-        if (pdbSearcher.isRunning() || pdbSearcher.isCancelled()) {
-            pdbSearcher.cancel(true);
-            pdbSearcher = new PdbSearcher(cursorAdapter);
-        }
-
-        pdbSearcher.execute(query);
+    public void doRender(String pdbId) {
+        new PdbRenderer(this, pdbId).execute();
     }
 
     public void updateStatusString(String updateTo) {
@@ -126,36 +52,6 @@ public class MainActivity extends AppCompatActivity {
         sceneformFragment.setModelRenderable(name, glbFile,
                 () -> {
                     statusTextView.setText(name);
-                    progressBar.setVisibility(View.INVISIBLE);
                 });
-    }
-
-    public void activateSearchView() {
-        searchView.setVisibility(View.VISIBLE);
-        searchView.requestFocus();
-        searchView.requestFocusFromTouch();
-    }
-
-    public void deactivateSearchView() {
-        pdbSearcher.cancel(true);
-        Log.i("PdbSearcher", "cancelled");
-        searchView.setVisibility(View.GONE);
-
-        // Hide system UI elements: status and navigation bars
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        );
-    }
-
-    private void showInputMethod(View view) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.showSoftInput(view, 0);
-        }
-    }
-
-    private void doRender(String pdbId) {
-        new PdbRenderer(this, pdbId).execute();
     }
 }

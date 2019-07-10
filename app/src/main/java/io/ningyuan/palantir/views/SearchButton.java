@@ -5,18 +5,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.View;
 
-import io.ningyuan.palantir.MainActivity;
-
 /**
  * Simply collapses the parent menu, and activates a search dialog on-click.
  */
 public class SearchButton extends FloatingActionButton {
-    private MainActivity mainActivity;
+    private SearchView searchView;
 
     public SearchButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.mainActivity = (MainActivity) context;
         this.setOnClickListener(new OnClickListener());
+    }
+
+    public void setSearchView(SearchView searchView) {
+        this.searchView = searchView;
     }
 
     /**
@@ -28,7 +29,7 @@ public class SearchButton extends FloatingActionButton {
     public class OnClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            mainActivity.activateSearchView();
+            searchView.activate();
         }
     }
 }
