@@ -34,6 +34,7 @@ public class SearchView extends android.widget.SearchView {
         this.setSuggestionsAdapter(this.suggestionAdapter);
 
         this.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        this.setQueryHint("Enter a PDB search query");
         setOnSuggestionListener();
         setOnQueryTextListener();
         Log.i(TAG, "the constructor was called");
