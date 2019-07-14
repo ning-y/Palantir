@@ -1,12 +1,15 @@
 package io.ningyuan.palantir.utils;
 
+import android.app.SearchManager;
+import android.database.MatrixCursor;
 import android.os.AsyncTask;
+import android.provider.BaseColumns;
 import android.util.Log;
+import android.view.View;
+import android.widget.CursorAdapter;
+import android.widget.ProgressBar;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,42 +17,58 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import io.ningyuan.jPdbApi.Pdb;
 import io.ningyuan.jPdbApi.Query;
-import io.ningyuan.palantir.MainActivity;
-import io.ningyuan.palantir.models.Molecule;
 
-public class PdbSearcher extends AsyncTask<String, Void, Molecule> {
+public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     private static final String TAG = String.format("PALANTIR::%s", PdbSearcher.class.getSimpleName());
-    private MainActivity mainActivity;
+    private boolean inProgress = false;
 
-    public PdbSearcher(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
+    private CursorAdapter adapter;
+    private ProgressBar progressBar;
+
+    public PdbSearcher(CursorAdapter adapter, ProgressBar progressBar) {
+        this.adapter = adapter;
+        this.progressBar = progressBar;
+    }
+
+    public boolean isRunning() {
+        return inProgress;
     }
 
     @Override
     protected void onPreExecute() {
-        mainActivity.updateStatusString("Searching...");
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        inProgress = true;
     }
 
     @Override
-    protected Molecule doInBackground(String... queries) {
+    protected MatrixCursor doInBackground(String... queryStrings) {
+        String queryString = queryStrings[0];
+
         try {
-            String keywords = queries[0];
-            Query query = new Query(Query.KEYWORD_QUERY, keywords);
+            Query query = new Query(Query.KEYWORD_QUERY, queryString);
             List<String> results = query.execute();
+            String[] columns = {
+                    BaseColumns._ID,
+                    SearchManager.SUGGEST_COLUMN_TEXT_1,
+                    SearchManager.SUGGEST_COLUMN_TEXT_2
+            };
+            MatrixCursor cursor = new MatrixCursor(columns);
+            int index = 1;
+            Log.i(TAG, "Start for in doInBackground");
+            for (String pdbId : results) {
+                Log.i(TAG, pdbId);
+                Pdb pdb = new Pdb(pdbId);
+                try {
+                    pdb.load();
+                    cursor.addRow(new Object[]{index++, pdb.getStructureId(), pdb.getTitle()});
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "Encountered an exception.", e);
+                }
+            }
 
-            String pdbId = results.get(0);
-            Pdb pdb = new Pdb(pdbId);
-            File cacheFile = File.createTempFile(pdbId.toUpperCase(), ".pdb", mainActivity.getCacheDir());
-            FileOutputStream outputStream = new FileOutputStream(cacheFile);
-            IOUtils.copy(pdb.getInputStream(), outputStream);
-            outputStream.close();
-
-            pdb.load();
-            Molecule result = new Molecule();
-            result.setPdb(pdb);
-            result.setPdbFileUri(cacheFile.toURI());
-
-            return result;
+            return cursor;
         } catch (IOException | ParserConfigurationException e) {
             Log.e(TAG, null, e);
             return null;
@@ -57,11 +76,29 @@ public class PdbSearcher extends AsyncTask<String, Void, Molecule> {
     }
 
     @Override
-    protected void onPostExecute(Molecule result) {
-        if (result != null) {
-            new PdbRenderer(mainActivity).execute(result);
-        } else {
-            mainActivity.updateStatusString("Something went wrong.");
+    protected void onPostExecute(MatrixCursor cursor) {
+        inProgress = false;
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+        if (cursor == null) {
+            String[] columns = {
+                    BaseColumns._ID,
+                    SearchManager.SUGGEST_COLUMN_TEXT_1,
+                    SearchManager.SUGGEST_COLUMN_TEXT_2
+            };
+            cursor = new MatrixCursor(columns);
+        }
+
+        adapter.changeCursor(cursor);
+    }
+
+    @Override
+    protected void onCancelled(MatrixCursor cursor) {
+        inProgress = false;
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 }

@@ -18,7 +18,7 @@ import io.ningyuan.palantir.MainActivity;
  * Convenience methods for file I/O operations.
  */
 public class FileIo {
-    private static final String TAG = String.format("%s:%s", MainActivity.TAG, FileIo.class.getSimpleName());
+    private static final String TAG = String.format("PALANTIR::%s", FileIo.class.getSimpleName());
 
     /**
      * From a content {@link Uri} (content://), obtain the real filename.
