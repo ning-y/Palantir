@@ -13,15 +13,28 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="top"
         android:fitsSystemWindows="true">
         <io.ningyuan.palantir.views.SearchView
-            android:id="@+id/search_view"
-            android:layout_marginRight="18dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:iconifiedByDefault="false"
+            android:id="@+id/search_view"
+            android:layout_alignParentLeft="true"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="18dp"
+            android:layout_width="wrap_content"
             android:visibility="gone"/>
+        <ProgressBar
+            android:id="@+id/search_progress_bar"
+            android:layout_alignParentRight="true"
+            android:layout_centerHorizontal="true"
+            android:layout_height="25dp"
+            android:layout_marginRight="18dp"
+            android:layout_marginTop="14dp"
+            android:layout_toRightOf="@id/search_view"
+            android:layout_width="25dp"
+            android:visibility="invisible"
+            style="?android:attr/progressBarStyleLarge"
+            />
     </RelativeLayout>
 
     <RelativeLayout

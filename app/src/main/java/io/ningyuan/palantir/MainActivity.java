@@ -2,6 +2,7 @@ package io.ningyuan.palantir;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.io.File;
@@ -32,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
         statusTextView = findViewById(R.id.model_name);
         statusTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
 
-        SearchButton searchButton = findViewById(R.id.search_rcsb_button);
         SearchView searchView = findViewById(R.id.search_view);
+        ProgressBar searchProgressBar = findViewById(R.id.search_progress_bar);
+        searchView.setProgressBar(searchProgressBar);
+        SearchButton searchButton = findViewById(R.id.search_rcsb_button);
         searchButton.setSearchView(searchView);
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);

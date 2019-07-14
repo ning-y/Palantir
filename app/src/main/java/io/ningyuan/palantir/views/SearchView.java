@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CursorAdapter;
+import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 
 import io.ningyuan.palantir.MainActivity;
@@ -21,6 +22,7 @@ public class SearchView extends android.widget.SearchView {
     CursorAdapter suggestionAdapter;
     MainActivity mainActivity;
     PdbSearcher pdbSearcher;
+    ProgressBar progressBar;
 
     public SearchView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -30,14 +32,20 @@ public class SearchView extends android.widget.SearchView {
                 new int[]{android.R.id.text1, android.R.id.text2}, 0
         );
         this.mainActivity = (MainActivity) context;
-        this.pdbSearcher = new PdbSearcher(this.suggestionAdapter);
+        this.pdbSearcher = new PdbSearcher(this.suggestionAdapter, null);
         this.setSuggestionsAdapter(this.suggestionAdapter);
 
-        this.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        this.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);
         this.setQueryHint("Enter a PDB search query");
         setOnSuggestionListener();
         setOnQueryTextListener();
         Log.i(TAG, "the constructor was called");
+    }
+
+    public void setProgressBar(ProgressBar progressBar) {
+        this.progressBar = progressBar;
+        this.pdbSearcher = new PdbSearcher(suggestionAdapter, progressBar);
+        progressBar.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);  // TODO: does nothing; fix
     }
 
     public void activate() {
@@ -91,6 +99,7 @@ public class SearchView extends android.widget.SearchView {
 
     private void deactivate() {
         this.setVisibility(GONE);
+        progressBar.setVisibility(GONE);
         View decorView = mainActivity.getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -108,7 +117,7 @@ public class SearchView extends android.widget.SearchView {
             suggestionAdapter.swapCursor(cursor);
         } else {
             pdbSearcher.cancel(true);
-            pdbSearcher = new PdbSearcher(suggestionAdapter);
+            pdbSearcher = new PdbSearcher(suggestionAdapter, progressBar);
             Log.e(TAG, String.format("Starting search with %s", query));
             pdbSearcher.execute(query);
         }

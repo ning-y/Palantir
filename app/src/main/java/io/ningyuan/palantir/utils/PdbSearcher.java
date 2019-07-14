@@ -5,7 +5,9 @@ import android.database.MatrixCursor;
 import android.os.AsyncTask;
 import android.provider.BaseColumns;
 import android.util.Log;
+import android.view.View;
 import android.widget.CursorAdapter;
+import android.widget.ProgressBar;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,10 +21,13 @@ import io.ningyuan.jPdbApi.Query;
 public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     private static final String TAG = String.format("PALANTIR::%s", PdbSearcher.class.getSimpleName());
     private boolean inProgress = false;
-    private CursorAdapter adapter;
 
-    public PdbSearcher(CursorAdapter adapter) {
+    private CursorAdapter adapter;
+    private ProgressBar progressBar;
+
+    public PdbSearcher(CursorAdapter adapter, ProgressBar progressBar) {
         this.adapter = adapter;
+        this.progressBar = progressBar;
     }
 
     public boolean isRunning() {
@@ -31,6 +36,9 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
 
     @Override
     protected void onPreExecute() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
         inProgress = true;
     }
 
@@ -70,8 +78,9 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     @Override
     protected void onPostExecute(MatrixCursor cursor) {
         inProgress = false;
-        Log.e(TAG, cursor.toString());
-        Log.e(TAG, String.valueOf(cursor.getCount()));
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
 
         if (cursor == null) {
             String[] columns = {
@@ -88,5 +97,8 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     @Override
     protected void onCancelled(MatrixCursor cursor) {
         inProgress = false;
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
     }
 }
