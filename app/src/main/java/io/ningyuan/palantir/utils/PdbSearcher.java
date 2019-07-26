@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import io.ningyuan.jPdbApi.Pdb;
 import io.ningyuan.jPdbApi.Query;
+import io.ningyuan.palantir.views.SearchView;
 
 public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
     private static final String TAG = String.format("PALANTIR::%s", PdbSearcher.class.getSimpleName());
@@ -49,12 +50,7 @@ public class PdbSearcher extends AsyncTask<String, Void, MatrixCursor> {
         try {
             Query query = new Query(Query.KEYWORD_QUERY, queryString);
             List<String> results = query.execute();
-            String[] columns = {
-                    BaseColumns._ID,
-                    SearchManager.SUGGEST_COLUMN_TEXT_1,
-                    SearchManager.SUGGEST_COLUMN_TEXT_2
-            };
-            MatrixCursor cursor = new MatrixCursor(columns);
+            MatrixCursor cursor = SearchView.getEmptyCursor(false);
             int index = 1;
             Log.i(TAG, "Start for in doInBackground");
             for (String pdbId : results) {
