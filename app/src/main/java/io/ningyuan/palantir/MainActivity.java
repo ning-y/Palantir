@@ -2,6 +2,9 @@ package io.ningyuan.palantir;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -41,6 +44,13 @@ public class MainActivity extends AppCompatActivity {
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
+
+        TextView textView = findViewById(R.id.about_textview);
+        textView.setText(Html.fromHtml(
+                getString(R.string.about), Html.FROM_HTML_MODE_LEGACY
+        ));
+        // Enables interactions with hyperlinks
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void doRender(String pdbId) {
