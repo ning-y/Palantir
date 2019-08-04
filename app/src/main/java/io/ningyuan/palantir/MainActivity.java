@@ -12,12 +12,14 @@ import java.io.File;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
 import io.ningyuan.palantir.utils.PdbRenderer;
+import io.ningyuan.palantir.views.AboutView;
 import io.ningyuan.palantir.views.SearchButton;
 import io.ningyuan.palantir.views.SearchView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = String.format("PALANTIR::%s", MainActivity.class.getSimpleName());
 
+    private AboutView aboutView;
     private SceneformFragment sceneformFragment;
     private TextView statusTextView;
 
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         statusTextView = findViewById(R.id.model_name);
         statusTextView.setText(getString(R.string.ux_model_renderable_not_yet_set));
 
+        aboutView = findViewById(R.id.about);
+
         SearchView searchView = findViewById(R.id.search_view);
         ProgressBar searchProgressBar = findViewById(R.id.search_progress_bar);
         searchView.setProgressBar(searchProgressBar);
@@ -44,13 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
-
-        TextView textView = findViewById(R.id.about_textview);
-        textView.setText(Html.fromHtml(
-                getString(R.string.about), Html.FROM_HTML_MODE_LEGACY
-        ));
-        // Enables interactions with hyperlinks
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     public void doRender(String pdbId) {
@@ -66,5 +63,13 @@ public class MainActivity extends AppCompatActivity {
                 () -> {
                     statusTextView.setText(name);
                 });
+    }
+
+    public void showAbout() {
+        aboutView.show();
+    }
+
+    public void hideAbout() {
+        aboutView.hide();
     }
 }

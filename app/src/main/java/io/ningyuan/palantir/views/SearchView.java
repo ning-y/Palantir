@@ -64,7 +64,7 @@ public class SearchView extends android.widget.SearchView {
                 String query = suggestionAdapter.getCursor().getString(1);
                 deactivate();
                 if (query.equals(ABOUT_ROW[1])) {
-                    // TODO
+                    mainActivity.showAbout();
                 } else {
                     mainActivity.doRender(query);
                 }
