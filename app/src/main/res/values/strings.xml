@@ -3,10 +3,14 @@
     <!-- If app name changes, also do a grep/find for other occurrences in this file -->
     <string name="app_name">Palantir</string>
 
-    <string name="about">
+    <string name="about_title">
         <![CDATA[
         <h1>About</h1>
+        ]]>
+    </string>
 
+    <string name="about_body">
+        <![CDATA[
         <!-- Alignment type justify not supported till API level 26,
         and not yet ported to be compatible with API level 24, which is
         what Palantir is written for. -->
