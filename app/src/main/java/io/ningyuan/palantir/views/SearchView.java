@@ -37,11 +37,12 @@ public class SearchView extends android.widget.SearchView {
         this.pdbSearcher = new PdbSearcher(this.suggestionAdapter, null);
         this.setSuggestionsAdapter(this.suggestionAdapter);
 
-        this.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        this.setQueryHint("Enter a PDB search query");
+        setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        setQueryHint("Enter a PDB search query");
+        setAutocompleteThreshold(0);
+        setOnCloseListener();
         setOnSuggestionListener();
         setOnQueryTextListener();
-        setAutocompleteThreshold(0);
         Log.i(TAG, "the constructor was called");
     }
 
@@ -49,6 +50,51 @@ public class SearchView extends android.widget.SearchView {
         this.progressBar = progressBar;
         this.pdbSearcher = new PdbSearcher(suggestionAdapter, progressBar);
         progressBar.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);  // TODO: does nothing; fix
+    }
+
+    public static MatrixCursor getEmptyCursor() {
+        return getEmptyCursor(true);
+    }
+
+    public static MatrixCursor getEmptyCursor(boolean shouldAddAbout) {
+        String[] columns = {
+                BaseColumns._ID,
+                SearchManager.SUGGEST_COLUMN_TEXT_1,
+                SearchManager.SUGGEST_COLUMN_TEXT_2
+        };
+        MatrixCursor cursor = new MatrixCursor(columns);
+
+        if (shouldAddAbout) {
+            cursor.addRow(ABOUT_ROW);
+        }
+
+        return cursor;
+    }
+
+    public void activate() {
+        setVisibility(VISIBLE);
+        requestFocus();
+        requestFocusFromTouch();
+        suggestionAdapter.changeCursor(getEmptyCursor());
+        InputMethodManager imm = (InputMethodManager) mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.showSoftInput(this.findFocus(), 0);
+        }
+    }
+
+    private void setAutocompleteThreshold(int threshold) {
+        AutoCompleteTextView search_text = this.findViewById(this.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
+        search_text.setThreshold(threshold);
+    }
+
+    private void setOnCloseListener() {
+        // FIXME: The soft keyboard does not close if user presses the 'X' to close the search view.
+        //        Any input on the soft keyboard will then show its appropriate search suggestions---but
+        //        with the search view being "GONE" throughout.
+        setOnCloseListener(() -> {
+            deactivate();
+            return false;
+        });
     }
 
     private void setOnSuggestionListener() {
@@ -95,24 +141,18 @@ public class SearchView extends android.widget.SearchView {
         });
     }
 
-    private void setAutocompleteThreshold(int threshold) {
-        AutoCompleteTextView search_text = this.findViewById(this.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
-        search_text.setThreshold(threshold);
-    }
-
-    public void activate() {
-        this.setVisibility(VISIBLE);
-        this.requestFocus();
-        this.requestFocusFromTouch();
-        InputMethodManager imm = (InputMethodManager) mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.showSoftInput(this.findFocus(), 0);
-        }
-    }
 
     private void deactivate() {
-        this.setVisibility(GONE);
+        // Clear the soft keyboard
+        clearFocus();
+        InputMethodManager imm = (InputMethodManager) mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getWindowToken(), 0);
+        }
+
+        setVisibility(GONE);
         progressBar.setVisibility(GONE);
+        suggestionAdapter.changeCursor(getEmptyCursor(false));
         View decorView = mainActivity.getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -130,24 +170,5 @@ public class SearchView extends android.widget.SearchView {
             Log.i(TAG, String.format("Starting search with %s", query));
             pdbSearcher.execute(query);
         }
-    }
-
-    public static MatrixCursor getEmptyCursor() {
-        return getEmptyCursor(true);
-    }
-
-    public static MatrixCursor getEmptyCursor(boolean shouldAddAbout) {
-        String[] columns = {
-                BaseColumns._ID,
-                SearchManager.SUGGEST_COLUMN_TEXT_1,
-                SearchManager.SUGGEST_COLUMN_TEXT_2
-        };
-        MatrixCursor cursor = new MatrixCursor(columns);
-
-        if (shouldAddAbout) {
-            cursor.addRow(ABOUT_ROW);
-        }
-
-        return cursor;
     }
 }
