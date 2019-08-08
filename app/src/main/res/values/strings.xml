@@ -3,6 +3,48 @@
     <!-- If app name changes, also do a grep/find for other occurrences in this file -->
     <string name="app_name">Palantir</string>
 
+    <string name="about_title">
+        <![CDATA[
+        <h1>About</h1>
+        ]]>
+    </string>
+
+    <string name="about_body">
+        <![CDATA[
+        <!-- Alignment type justify not supported till API level 26,
+        and not yet ported to be compatible with API level 24, which is
+        what Palantir is written for. -->
+
+        <p>
+            Report bugs or contribute to Palantir at the
+            <a href="https://github.com/ningyuansg/Palantir">GitHub repository.</a>
+        </p>
+
+        <p>
+            Palantir uses a number of open-source softwares and libraries. Please find their
+            licenses and/or notices below.
+        <p>
+
+        <p><b>Visual Molecular Dynamics (VMD)</b></p>
+        <p>
+            This software includes code developed by the Theoretical and Computational Biophysics
+            Group in the Beckman Institute for Advanced Science and Technology at the University of
+            Illinois at Urbana-Chapaign.
+            <a href="https://github.com/palantir-mirrors/vmd/blob/master/vmd-1.9.3/LICENSE">License</a>.
+        </p>
+
+        <p><b>STRIDE</b></p>
+        <p>
+            <a href="https://github.com/palantir-mirrors/stride/blob/master/doc/stride.doc">License</a>.
+         </p>
+
+        <p><b>Tcl 8.5.19</b></p>
+        <p>
+            <a href="https://github.com/palantir-mirrors/tcl8.5.19/blob/master/license.terms">License</a>.
+        </p>
+        ]]>
+    </string>
+
     <string name="ux_model_renderable_not_yet_set">Click on the bottom-right button to import a 3D model</string>
 
     <string name="log_import_failed_io">Failed with IOException: </string>

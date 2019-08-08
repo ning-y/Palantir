@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AutoCompleteTextView;
 import android.widget.CursorAdapter;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
@@ -18,6 +19,7 @@ import io.ningyuan.palantir.utils.PdbSearcher;
 
 public class SearchView extends android.widget.SearchView {
     private static final String TAG = String.format("PALANTIR::%s", SearchView.class.getSimpleName());
+    private static final Object[] ABOUT_ROW = new Object[]{Integer.MAX_VALUE, "About", "About this program"};
 
     CursorAdapter suggestionAdapter;
     MainActivity mainActivity;
@@ -27,7 +29,7 @@ public class SearchView extends android.widget.SearchView {
     public SearchView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.suggestionAdapter = new SimpleCursorAdapter(
-                context, android.R.layout.simple_list_item_2, null,
+                context, android.R.layout.simple_list_item_2, getEmptyCursor(),
                 new String[]{SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_TEXT_2},
                 new int[]{android.R.id.text1, android.R.id.text2}, 0
         );
@@ -35,8 +37,10 @@ public class SearchView extends android.widget.SearchView {
         this.pdbSearcher = new PdbSearcher(this.suggestionAdapter, null);
         this.setSuggestionsAdapter(this.suggestionAdapter);
 
-        this.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        this.setQueryHint("Enter a PDB search query");
+        setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);
+        setQueryHint("Enter a PDB search query");
+        setAutocompleteThreshold(0);
+        setOnCloseListener();
         setOnSuggestionListener();
         setOnQueryTextListener();
         Log.i(TAG, "the constructor was called");
@@ -48,14 +52,49 @@ public class SearchView extends android.widget.SearchView {
         progressBar.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE);  // TODO: does nothing; fix
     }
 
+    public static MatrixCursor getEmptyCursor() {
+        return getEmptyCursor(true);
+    }
+
+    public static MatrixCursor getEmptyCursor(boolean shouldAddAbout) {
+        String[] columns = {
+                BaseColumns._ID,
+                SearchManager.SUGGEST_COLUMN_TEXT_1,
+                SearchManager.SUGGEST_COLUMN_TEXT_2
+        };
+        MatrixCursor cursor = new MatrixCursor(columns);
+
+        if (shouldAddAbout) {
+            cursor.addRow(ABOUT_ROW);
+        }
+
+        return cursor;
+    }
+
     public void activate() {
-        this.setVisibility(VISIBLE);
-        this.requestFocus();
-        this.requestFocusFromTouch();
+        setVisibility(VISIBLE);
+        requestFocus();
+        requestFocusFromTouch();
+        suggestionAdapter.changeCursor(getEmptyCursor());
         InputMethodManager imm = (InputMethodManager) mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.showSoftInput(this.findFocus(), 0);
         }
+    }
+
+    private void setAutocompleteThreshold(int threshold) {
+        AutoCompleteTextView search_text = this.findViewById(this.getContext().getResources().getIdentifier("android:id/search_src_text", null, null));
+        search_text.setThreshold(threshold);
+    }
+
+    private void setOnCloseListener() {
+        // FIXME: The soft keyboard does not close if user presses the 'X' to close the search view.
+        //        Any input on the soft keyboard will then show its appropriate search suggestions---but
+        //        with the search view being "GONE" throughout.
+        setOnCloseListener(() -> {
+            deactivate();
+            return false;
+        });
     }
 
     private void setOnSuggestionListener() {
@@ -70,7 +109,11 @@ public class SearchView extends android.widget.SearchView {
                 suggestionAdapter.getCursor().moveToPosition(i);
                 String query = suggestionAdapter.getCursor().getString(1);
                 deactivate();
-                mainActivity.doRender(query);
+                if (query.equals(ABOUT_ROW[1])) {
+                    mainActivity.showAbout();
+                } else {
+                    mainActivity.doRender(query);
+                }
                 return false;
             }
         });
@@ -87,6 +130,7 @@ public class SearchView extends android.widget.SearchView {
 
             @Override
             public boolean onQueryTextChange(String s) {
+                Log.d(TAG, String.format("onQueryTextChange found \"%s\"", s));
                 if (s.length() == 0) {
                     deactivate();
                 } else {
@@ -97,9 +141,18 @@ public class SearchView extends android.widget.SearchView {
         });
     }
 
+
     private void deactivate() {
-        this.setVisibility(GONE);
+        // Clear the soft keyboard
+        clearFocus();
+        InputMethodManager imm = (InputMethodManager) mainActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getWindowToken(), 0);
+        }
+
+        setVisibility(GONE);
         progressBar.setVisibility(GONE);
+        suggestionAdapter.changeCursor(getEmptyCursor(false));
         View decorView = mainActivity.getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -107,18 +160,14 @@ public class SearchView extends android.widget.SearchView {
     }
 
     private void doSearch(String query) {
+        Log.d(TAG, String.format("doSearch found \"%s\"", query));
         if (query.length() < 3) {
-            String[] columns = {
-                    BaseColumns._ID,
-                    SearchManager.SUGGEST_COLUMN_TEXT_1,
-                    SearchManager.SUGGEST_COLUMN_TEXT_2
-            };
-            MatrixCursor cursor = new MatrixCursor(columns);
+            MatrixCursor cursor = getEmptyCursor();
             suggestionAdapter.swapCursor(cursor);
         } else {
             pdbSearcher.cancel(true);
             pdbSearcher = new PdbSearcher(suggestionAdapter, progressBar);
-            Log.e(TAG, String.format("Starting search with %s", query));
+            Log.i(TAG, String.format("Starting search with %s", query));
             pdbSearcher.execute(query);
         }
     }

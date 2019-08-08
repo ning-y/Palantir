@@ -1,23 +1,23 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_width="match_parent"
     tools:context=".MainActivity">
 
     <fragment
         android:id="@+id/ux_fragment"
-        android:name="io.ningyuan.palantir.fragments.SceneformFragment"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:name="io.ningyuan.palantir.fragments.SceneformFragment"/>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:gravity="top"
-        android:fitsSystemWindows="true">
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
         <io.ningyuan.palantir.views.SearchView
-            android:iconifiedByDefault="false"
             android:id="@+id/search_view"
+            android:iconifiedByDefault="false"
             android:layout_alignParentLeft="true"
             android:layout_height="wrap_content"
             android:layout_marginLeft="18dp"
@@ -33,34 +33,65 @@
             android:layout_toRightOf="@id/search_view"
             android:layout_width="25dp"
             android:visibility="invisible"
-            style="?android:attr/progressBarStyleLarge"
-            />
+            style="?android:attr/progressBarStyleLarge"/>
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="18dp">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="18dp"
+        android:layout_width="match_parent">
         <TextView
             android:id="@+id/model_name"
-            android:layout_width="wrap_content"
+            android:fontFamily="monospace"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
             android:layout_height="wrap_content"
             android:layout_marginLeft="18dp"
             android:layout_toLeftOf="@id/search_rcsb_button"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:fontFamily="monospace" />
+            android:layout_width="wrap_content"/>
         <io.ningyuan.palantir.views.SearchButton
             android:id="@+id/search_rcsb_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="18dp"
             android:background="@null"
             android:backgroundTint="@color/lightGray"
-            android:tint="@color/darkGray"
-            android:src="@drawable/ic_search_black_24dp"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true" />
+            android:layout_height="wrap_content"
+            android:layout_margin="18dp"
+            android:layout_width="wrap_content"
+            android:src="@drawable/ic_search_black_24dp"
+            android:tint="@color/darkGray"/>
     </RelativeLayout>
+
+    <io.ningyuan.palantir.views.AboutView
+        android:id="@+id/about"
+        android:background="@color/darkGray"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:padding="28dp"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/about_title"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+        <ImageButton
+            android:id="@+id/about_close"
+            android:background="@null"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:padding="2dp"
+            android:src="@drawable/ic_close_black_24dp"
+            android:tint="@color/lightGray"/>
+        <TextView
+            android:id="@+id/about_body"
+            android:layout_below="@id/about_title"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textColor="@color/lightGray"/>
+    </io.ningyuan.palantir.views.AboutView>
+
 </FrameLayout>
