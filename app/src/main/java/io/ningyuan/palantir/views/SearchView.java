@@ -141,7 +141,6 @@ public class SearchView extends android.widget.SearchView {
         });
     }
 
-
     private void deactivate() {
         // Clear the soft keyboard
         clearFocus();
@@ -163,9 +162,10 @@ public class SearchView extends android.widget.SearchView {
         Log.d(TAG, String.format("doSearch found \"%s\"", query));
         if (query.length() < 3) {
             MatrixCursor cursor = getEmptyCursor();
-            suggestionAdapter.swapCursor(cursor);
+            suggestionAdapter.changeCursor(cursor);
         } else {
             pdbSearcher.cancel(true);
+            pdbSearcher.makeInvalid();  // pdbSearcher.onCancelled not called if doInBackground already complete
             pdbSearcher = new PdbSearcher(suggestionAdapter, progressBar);
             Log.i(TAG, String.format("Starting search with %s", query));
             pdbSearcher.execute(query);
