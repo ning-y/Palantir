@@ -48,16 +48,11 @@
 
     <string name="ux_model_renderable_not_yet_set">Click on the bottom-right button to import a 3D model</string>
 
-    <string name="log_import_failed_io">Failed with IOException: </string>
-    <string name="log_write_temp_file_done">Done writing cache file from content URI: </string>
-    <string name="log_write_temp_file_start">Preparing to save cache file from content URI.</string>
-
-    <string name="error_import_failed_bad_render">Something went wrong: unable to render the import file.</string>
+    <string name="error_import_failed_bad_render">Something went wrong: unable to render PDB file.</string>
     <string name="error_import_failed_io">Something went wrong: unable to import the requested file.</string>
     <string name="error_insufficient_opengl_version">Palantir uses ARCore, which requires OpenGL ES 3.0 or later.</string>
     <string name="error_insufficient_sdk_version">Palantir uses ARCore, which requires Android N or later.</string>
-    <string name="error_no_model_renderable">You must first import a *.glb file!</string>
-    <string name="error_no_resolvable_activity">Something went wrong: there is no application configured to browse your filesystem.</string>
+    <string name="error_no_model_renderable">A PDB must be loaded first!</string>
 
     <string name="tcl_script_template">
         mol addfile %s \n
