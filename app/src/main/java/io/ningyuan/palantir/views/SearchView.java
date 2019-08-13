@@ -149,6 +149,7 @@ public class SearchView extends android.widget.SearchView {
             imm.hideSoftInputFromWindow(getWindowToken(), 0);
         }
 
+        pdbSearcher.makeInvalid();
         setVisibility(GONE);
         progressBar.setVisibility(GONE);
         suggestionAdapter.changeCursor(getEmptyCursor(false));

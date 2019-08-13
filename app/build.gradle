@@ -3,28 +3,24 @@ apply plugin: 'com.google.ar.sceneform.plugin'
 apply plugin: 'org.ajoberstar.grgit'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId "io.ningyuan.palantir"
 
         // AR Optional apps must declare minSdkVersion >= 14.
         // AR Required apps must declare minSdkVersion >= 24.
         minSdkVersion 24
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         ndk {
             /*
              * Sceneform is available for the following ABIs:
              * 'arm64-v8a', 'armeabi-v7a', 'x86_64' and 'x86'.
              * Your application should include the ABIs most appropriate to
              * minimize APK size. Listing 'arm64-v8a' is recommended.
-             *
-             * This sample app includes two ABIs:
-             * 1. 'arm64-v8a' to run on devices
-             * 2. 'x86' to run in the Android emulator
              */
-            abiFilters 'arm64-v8a', 'x86'
+            abiFilters 'arm64-v8a'
         }
         externalNativeBuild {
             cmake {
@@ -90,8 +86,8 @@ preBuild.dependsOn fetchStrideSrc
 dependencies {
     implementation 'ch.acra:acra-dialog:5.4.0'
     implementation 'ch.acra:acra-mail:5.4.0'
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
     implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.10.0'
     implementation 'com.google.ar.sceneform:assets:1.10.0'
     implementation 'commons-io:commons-io:2.6'

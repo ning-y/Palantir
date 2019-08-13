@@ -31,6 +31,10 @@ public class PdbTitleSearcher extends AsyncTask<Integer, Void, Integer> {
     protected Integer doInBackground(Integer... integers) {
         int indexToLoad = integers[0];
 
+        if (indexToLoad >= pdbs.size()) {
+            return indexToLoad + 1;  // value doesn't matter, will terminate at onPostExecute
+        }
+
         try {
             pdbs.get(indexToLoad).load();
         } catch (IOException e) {
