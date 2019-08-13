@@ -44,6 +44,7 @@
         </p>
         ]]>
     </string>
+    <string name="acra_title">Sorry, Palantir has crashed. Please click \'OK\' to send a crash report.</string>
 
     <string name="ux_model_renderable_not_yet_set">Click on the bottom-right button to import a 3D model</string>
 

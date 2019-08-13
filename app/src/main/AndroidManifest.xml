@@ -16,6 +16,7 @@
 
     <application
         android:allowBackup="false"
+        android:name=".PalantirApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
