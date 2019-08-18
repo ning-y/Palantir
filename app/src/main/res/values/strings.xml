@@ -3,6 +3,13 @@
     <!-- If app name changes, also do a grep/find for other occurrences in this file -->
     <string name="app_name">Palantir</string>
 
+    <string name="should_show_warning">SHOULD_SHOW_WARNING</string>
+    <string name="warning_dialog_content">
+        Be aware of your surroundings when you use augmented reality!
+        If you are unsure of how to use this application safely, please find guidance from a responsible adult.
+    </string>
+    <string name="warning_dialog_checkbox">Don\'t show this warning again.</string>
+
     <string name="about_title">
         <![CDATA[
         <h1>About</h1>

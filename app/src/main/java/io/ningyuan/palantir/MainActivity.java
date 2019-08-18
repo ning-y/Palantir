@@ -1,7 +1,12 @@
 package io.ningyuan.palantir;
 
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -45,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
         sceneformFragment = (SceneformFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
         sceneformFragment.setParentActivity(this);
+
+        setWarningDialog();
     }
 
     public void doRender(String pdbId) {
@@ -64,5 +71,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void showAbout() {
         aboutView.show();
+    }
+
+    private void setWarningDialog() {
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor preferenceEditor = preferences.edit();
+
+        View warningDialogLayout = getLayoutInflater().inflate(R.layout.warning_dialog, null);
+        CheckBox warningDialogCheckbox = warningDialogLayout.findViewById(R.id.warning_dialog_checkbox);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(warningDialogLayout)
+                .setPositiveButton("OK.", (DialogInterface di, int which) -> {
+                    preferenceEditor.putBoolean(
+                            getString(R.string.should_show_warning),
+                            !warningDialogCheckbox.isChecked()
+                    );
+                    preferenceEditor.commit();
+                    di.dismiss();
+                });
+
+        boolean shouldShowWarning = preferences.getBoolean(getString(R.string.should_show_warning), true);
+        if (shouldShowWarning) {
+            builder.create().show();
+        }
     }
 }
