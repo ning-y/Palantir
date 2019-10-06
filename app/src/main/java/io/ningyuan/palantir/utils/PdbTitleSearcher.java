@@ -46,7 +46,7 @@ public class PdbTitleSearcher extends AsyncTask<Integer, Void, Integer> {
 
     @Override
     protected void onPostExecute(Integer nextIndex) {
-        MatrixCursor cursor = SearchView.getEmptyCursor(false);
+        MatrixCursor cursor = SearchView.getEmptyCursor(false, false);
         int cursorIndex = 0;
         for (Pdb pdb : pdbs) {
             cursor.addRow(new Object[]{
