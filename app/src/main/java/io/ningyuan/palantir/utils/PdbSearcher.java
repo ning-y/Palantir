@@ -87,7 +87,7 @@ public class PdbSearcher extends AsyncTask<String, Void, LinkedList<Pdb>> {
             progressBar.setVisibility(View.INVISIBLE);
         }
 
-        MatrixCursor cursor = SearchView.getEmptyCursor(false);
+        MatrixCursor cursor = SearchView.getEmptyCursor(false, false);
         int cursorIndex = 0;
         for (Pdb pdb : results) {
             cursor.addRow(new Object[]{

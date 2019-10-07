@@ -20,6 +20,7 @@ import io.ningyuan.palantir.utils.PdbSearcher;
 public class SearchView extends android.widget.SearchView {
     private static final String TAG = String.format("PALANTIR::%s", SearchView.class.getSimpleName());
     private static final Object[] ABOUT_ROW = new Object[]{Integer.MAX_VALUE, "About", "About this program"};
+    private static final Object[] IMPORT_GLB_ROW = new Object[]{Integer.MAX_VALUE, "Import .glb", "Import a binary glTF file"};
 
     CursorAdapter suggestionAdapter;
     MainActivity mainActivity;
@@ -53,10 +54,10 @@ public class SearchView extends android.widget.SearchView {
     }
 
     public static MatrixCursor getEmptyCursor() {
-        return getEmptyCursor(true);
+        return getEmptyCursor(true, true);
     }
 
-    public static MatrixCursor getEmptyCursor(boolean shouldAddAbout) {
+    public static MatrixCursor getEmptyCursor(boolean shouldAddAbout, boolean shouldAddImportGlb) {
         String[] columns = {
                 BaseColumns._ID,
                 SearchManager.SUGGEST_COLUMN_TEXT_1,
@@ -64,9 +65,9 @@ public class SearchView extends android.widget.SearchView {
         };
         MatrixCursor cursor = new MatrixCursor(columns);
 
-        if (shouldAddAbout) {
-            cursor.addRow(ABOUT_ROW);
-        }
+        // I explicitly want the import row to show up after the about row.
+        if (shouldAddAbout) cursor.addRow(ABOUT_ROW);
+        if (shouldAddImportGlb) cursor.addRow(IMPORT_GLB_ROW);
 
         return cursor;
     }
@@ -111,6 +112,8 @@ public class SearchView extends android.widget.SearchView {
                 deactivate();
                 if (query.equals(ABOUT_ROW[1])) {
                     mainActivity.showAbout();
+                } else if (query.equals(IMPORT_GLB_ROW[1])) {
+                    mainActivity.startImportGlb();
                 } else {
                     mainActivity.doRender(query);
                 }
@@ -152,7 +155,7 @@ public class SearchView extends android.widget.SearchView {
         pdbSearcher.makeInvalid();
         setVisibility(GONE);
         progressBar.setVisibility(GONE);
-        suggestionAdapter.changeCursor(getEmptyCursor(false));
+        suggestionAdapter.changeCursor(getEmptyCursor(false, false));
         View decorView = mainActivity.getWindow().getDecorView();
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
