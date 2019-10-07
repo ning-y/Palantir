@@ -51,15 +51,24 @@
         </p>
         ]]>
     </string>
+
     <string name="acra_title">Sorry, Palantir has crashed. Please click \'OK\' to send a crash report.</string>
 
     <string name="ux_model_renderable_not_yet_set">Click on the bottom-right button to import a 3D model</string>
 
+    <!-- TODO Rename and reword as TOAST_ERRORs below-->
     <string name="error_import_failed_bad_render">Something went wrong: unable to render PDB file.</string>
     <string name="error_import_failed_io">Something went wrong: unable to import the requested file.</string>
     <string name="error_insufficient_opengl_version">Palantir uses ARCore, which requires OpenGL ES 3.0 or later.</string>
     <string name="error_insufficient_sdk_version">Palantir uses ARCore, which requires Android N or later.</string>
     <string name="error_no_model_renderable">A PDB must be loaded first!</string>
+
+    <string name="TOAST_ERROR_NO_ACTIVITY_FOR_IMPORT_INTENT">
+        Error10: cannot find a suitable application to browse system files.</string>
+    <string name="TOAST_ERROR_IO_EXCEPTION_CACHING_IMPORT_INTENT_RESULT">
+        Error11: failed to import file from the system.</string>
+    <string name="TOAST_ERROR_RESULT_CODE_NOT_OK_FOR_IMPORT_INTENT_RESULT">
+        Error12: failed to import file from the system.</string>
 
     <string name="tcl_script_template">
         mol addfile %s \n

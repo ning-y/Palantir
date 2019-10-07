@@ -17,14 +17,13 @@ import java.io.File;
 import java.io.IOException;
 
 import io.ningyuan.palantir.fragments.SceneformFragment;
-import io.ningyuan.palantir.utils.FileIo;
 import io.ningyuan.palantir.utils.PdbRenderer;
 import io.ningyuan.palantir.utils.Toaster;
 import io.ningyuan.palantir.views.AboutView;
 import io.ningyuan.palantir.views.SearchButton;
 import io.ningyuan.palantir.views.SearchView;
-
 import static io.ningyuan.palantir.utils.FileIo.cacheFileFromContentUri;
+import static io.ningyuan.palantir.utils.FileIo.getFilenameFromContentUri;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = String.format("PALANTIR::%s", MainActivity.class.getSimpleName());
@@ -64,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Received by onActivityResult.
+     * Other views call this method to trigger an "import .glb" event. This starts the built-in file
+     * browser. The file that is selected by the user is then received by {@link #onActivityResult}.
      */
     public void startImportGlb() {
         Intent importIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         if (importIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(importIntent, IMPORT_GLB_FILE_RESULT);
         } else {
-            Toaster.showToastLong(this, "Error: unable to open the file explorer.");
+            Toaster.showToastLong(this, R.string.TOAST_ERROR_NO_ACTIVITY_FOR_IMPORT_INTENT);
         }
     }
 
@@ -91,25 +91,41 @@ public class MainActivity extends AppCompatActivity {
                 () -> statusTextView.setText(name));
     }
 
+    /**
+     * Shows the full-screen view containing information about Palantir. Usually called from
+     * {@see SearchView#setOnSuggestionListener}
+     */
     public void showAbout() {
         aboutView.show();
     }
 
+    /** Receives the result of an activity. Used for {@link #startImportGlb()}.
+     *
+     * @param requestCode reflects with which intent the returning activity was started with. If
+     *                    {@link #startImportGlb()}, then {@link #IMPORT_GLB_FILE_RESULT}.
+     * @param resultCode {@link #RESULT_OK} if successful.
+     * @param resultIntent contains result data from the returning activity.
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent resultIntent) {
         if (requestCode == IMPORT_GLB_FILE_RESULT && resultCode == RESULT_OK) {
             Uri contentUri = resultIntent.getData();
             try {
                 File glbFile = cacheFileFromContentUri(this, contentUri, ".glb");
-                updateModelRenderable("Custom .glb file", glbFile);
+                updateModelRenderable(
+                        String.format("Custom .glb file: %s", getFilenameFromContentUri(this, contentUri)), glbFile);
             } catch (IOException e) {
                 Log.e(TAG, null, e);
-                Toaster.showToastLong(this, "Error: unable to open the selected file");
+                Toaster.showToastLong(this, R.string.TOAST_ERROR_IO_EXCEPTION_CACHING_IMPORT_INTENT_RESULT);
             }
         } else if (requestCode == IMPORT_GLB_FILE_RESULT) {
-            Toaster.showToastLong(this, "Error: import failed");
+            Toaster.showToastLong(this, R.string.TOAST_ERROR_RESULT_CODE_NOT_OK_FOR_IMPORT_INTENT_RESULT);
         }
     }
 
+    /**
+     * Spawns a start-up warning dialog about using AR features safely. A requirement of the Google
+     * Play Store.
+     */
     private void setWarningDialog() {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor preferenceEditor = preferences.edit();

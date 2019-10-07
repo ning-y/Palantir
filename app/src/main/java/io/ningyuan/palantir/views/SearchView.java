@@ -65,12 +65,9 @@ public class SearchView extends android.widget.SearchView {
         };
         MatrixCursor cursor = new MatrixCursor(columns);
 
-        if (shouldAddAbout) {
-            cursor.addRow(ABOUT_ROW);
-        }
-        if (shouldAddImportGlb) {
-            cursor.addRow(IMPORT_GLB_ROW);
-        }
+        // I explicitly want the import row to show up after the about row.
+        if (shouldAddAbout) cursor.addRow(ABOUT_ROW);
+        if (shouldAddImportGlb) cursor.addRow(IMPORT_GLB_ROW);
 
         return cursor;
     }
