@@ -23,30 +23,38 @@
         what Palantir is written for. -->
 
         <p>
-            Report bugs or contribute to Palantir at the
+            To cite <i>Palantir</i>:
+        </p>
+
+        <p style="margin-left: 1em; color:blue;">
+            Ning Yuan Lee, and Greg Tucker‐Kellogg. 2020.
+            ‘An Accessible, Open-Source Mobile Application for Macromolecular Visualization Using Augmented Reality’.
+            Biochemistry and Molecular Biology Education 48 (3): 297–303.
+            <a href="https://doi.org/10.1002/bmb.21335">https://doi.org/10.1002/bmb.21335</a>.
+        </p>
+
+        <p>
+            To report bugs or contribute, please visit the
             <a href="https://github.com/ning-y/Palantir">GitHub repository.</a>
         </p>
 
         <p>
-            Palantir uses a number of open-source softwares and libraries. Please find their
-            licenses and/or notices below.
+            Palantir uses a number of open-source softwares and libraries.
+            You can find their licenses and/or notices below.
         <p>
 
-        <p><b>Visual Molecular Dynamics (VMD)</b></p>
-        <p>
+        <p><b>Visual Molecular Dynamics (VMD)</b><br>
             This software includes code developed by the Theoretical and Computational Biophysics
             Group in the Beckman Institute for Advanced Science and Technology at the University of
             Illinois at Urbana-Chapaign.
             <a href="https://github.com/palantir-mirrors/vmd/blob/master/vmd-1.9.3/LICENSE">License</a>.
         </p>
 
-        <p><b>STRIDE</b></p>
-        <p>
+        <p><b>STRIDE</b><br>
             <a href="https://github.com/palantir-mirrors/stride/blob/master/doc/stride.doc">License</a>.
          </p>
 
-        <p><b>Tcl 8.5.19</b></p>
-        <p>
+        <p><b>Tcl 8.5.19</b><br>
             <a href="https://github.com/palantir-mirrors/tcl8.5.19/blob/master/license.terms">License</a>.
         </p>
         ]]>
