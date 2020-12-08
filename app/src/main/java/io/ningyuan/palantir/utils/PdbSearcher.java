@@ -9,12 +9,9 @@ import android.widget.ProgressBar;
 
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import io.ningyuan.jPdbApi.Pdb;
-import io.ningyuan.jPdbApi.Query;
+import io.ningyuan.jPdbApi.TextSearch;
 import io.ningyuan.palantir.views.SearchView;
 
 /**
@@ -58,24 +55,15 @@ public class PdbSearcher extends AsyncTask<String, Void, LinkedList<Pdb>> {
         String queryString = queryStrings[0];
 
         try {
-            Query query = new Query(Query.KEYWORD_QUERY, queryString);
-            List<String> results = query.execute();
+            TextSearch textSearch = new TextSearch(queryString);
+            String[] results = textSearch.getPage();
             LinkedList<Pdb> pdbResults = new LinkedList<>();
             Log.i(TAG, String.format("Start doInBackground for %s", queryString));
             for (String pdbId : results) {
                 ((LinkedList<Pdb>) pdbResults).addLast(new Pdb(pdbId));
-                // TODO: do this later, after just the pdbIds are passed to UI
-                // Log.d(TAG, String.format("Fetching %s for %s", pdbId, queryString));
-                // Pdb pdb = new Pdb(pdbId);
-                // try {
-                //     pdb.load();
-                //     cursor.addRow(new Object[]{index++, pdb.getStructureId(), pdb.getTitle()});
-                // } catch (FileNotFoundException e) {
-                //     Log.e(TAG, String.format("Encountered an exception for %s.", queryString), e);
-                // }
             }
             return pdbResults;
-        } catch (IOException | ParserConfigurationException e) {
+        } catch (IOException e) {
             Log.e(TAG, String.format("Encountered an exception for %s.", queryString), e);
             return null;
         }
