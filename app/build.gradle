@@ -3,14 +3,14 @@ apply plugin: 'com.google.ar.sceneform.plugin'
 apply plugin: 'org.ajoberstar.grgit'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "io.ningyuan.palantir"
 
         // AR Optional apps must declare minSdkVersion >= 14.
         // AR Required apps must declare minSdkVersion >= 24.
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 4
         versionName "1.0.3"
         ndk {
