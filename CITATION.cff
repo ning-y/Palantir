@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Please cite the peer-reviewed article for Palantir."
+preferred-citation:
+  authors:
+  - family-names: "Lee"
+    given-names: "Ning Yuan"
+    orcid: "https://orcid.org/0000-0002-2258-9851"
+  - family-names: "Tucker-Kellogg"
+    given-names: "Greg"
+    orcid: "https://orcid.org/0000-0001-8407-9251"
+  title: "An accessible, open-source mobile application for macromolecular visualization using augmented reality"
+  doi: 10.1002/bmb.21335
+  date-released: 2020-02-20
+  type: article
